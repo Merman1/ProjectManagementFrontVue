@@ -43,7 +43,7 @@ component:HomePageUser
         },
         {
             name:'edit',
-            path:'/edit',
+            path: '/edit/:id',
             component:edit
         },
         {

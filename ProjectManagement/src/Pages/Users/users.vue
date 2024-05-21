@@ -164,39 +164,56 @@
       <h3 class="font-bold text-left text-xl">Użytkownicy i role</h3>
       <ul class="mt-4">
         <li v-for="(user, index) in users" :key="index" class="flex justify-between items-center mb-2">
-          <span class="font-semibold">{{ user.name }}</span>
-          <span class="text-gray-500">Rola: {{ user.role }}</span>
-          <img src="../../assets/delete.png" alt="Więcej opcji" class="w-4 h-4 cursor-pointer" @click="showConfirmation(user.name)">
-        </li>
+  <div class="w-1/4">
+    <span class="font-semibold text-left">{{ user.username }}</span>
+  </div>
+  <div class="w-1/4">
+    <span class="font-semibold text-left">{{ user.email }}</span>
+  </div>
+  <div class="w-1/2">
+    <span class="font-semibold text-left">Role: 
+      <span v-for="(role, roleIndex) in user.roles" :key="roleIndex">
+        {{ role.name }}
+        <span v-if="roleIndex !== user.roles.length - 1">, </span>
+      </span>
+    </span>
+  </div>
+  <div class="w-1/12">
+    <img src="../../assets/delete.png" alt="Więcej opcji" class="w-4 h-4 cursor-pointer" @click="showConfirmation(user.username)">
+
+  </div>
+</li>
+
       </ul>
     </div>
     
     <!-- Prawa kolumna - Formularz dodawania użytkownika -->
     <div class="border bg-gray-100 border-gray-300 rounded-md p-[20px] h-full w-1/2">
-      <h3 class="font-bold text-left text-xl">Dodaj użytkownika</h3>
-      <form class="mt-4" @submit.prevent="addUser">
-        <div class="mb-4">
-          <label for="username" class="block text-gray-700 font-bold mb-2">Nazwa użytkownika:</label>
-          <input v-model="newUser.name" type="text" id="username" name="username" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz nazwę użytkownika" required>
-        </div>
-        <div class="mb-4">
-          <label for="username" class="block text-gray-700 font-bold mb-2">Login:</label>
-          <input v-model="newUser.name" type="text" id="username" name="username" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz nazwę użytkownika" required>
-        </div>
-        <div class="mb-4">
-          <label for="username" class="block text-gray-700 font-bold mb-2">Hasło:</label>
-          <input v-model="newUser.name" type="text" id="username" name="username" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz nazwę użytkownika" required>
-        </div>
-        <div class="mb-4">
-          <label for="role" class="block text-gray-700 font-bold mb-2">Rola:</label>
-          <select v-model="newUser.role" id="role" name="role" class="w-full border-gray-300 rounded-md p-2" required>
-            <option value="" disabled selected>Wybierz rolę</option>
-            <option value="administrator">Administrator</option>
-            <option value="użytkownik">Użytkownik</option>
-          </select>
-        </div>
-        <button type="submit" class="bg-amber-300 hover:bg-amber-500 text-white px-4 py-2 rounded-md ">Dodaj użytkownika</button>
-      </form>
+          <h3 class="font-bold text-left text-xl">Dodaj użytkownika</h3>
+          <form class="mt-4" @submit.prevent="addUser">
+            <div class="mb-4">
+              <label for="username" class="block text-gray-700 font-bold mb-2">Nazwa użytkownika:</label>
+              <input v-model="newUser.username" type="text" id="username" name="username" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz nazwę użytkownika" required>
+            </div>
+            <div class="mb-4">
+              <label for="email" class="block text-gray-700 font-bold mb-2">Email:</label>
+              <input v-model="newUser.email" type="email" id="email" name="email" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz adres email" required>
+            </div>
+            <div class="mb-4">
+              <label for="password" class="block text-gray-700 font-bold mb-2">Hasło:</label>
+              <input v-model="newUser.password" type="password" id="password" name="password" class="w-full border-gray-300 rounded-md p-2" placeholder="Wpisz hasło" required>
+            </div>
+            <div class="mb-4">
+              <label for="role" class="block text-gray-700 font-bold mb-2">Rola:</label>
+              
+              <select v-model="newUser.role" id="role" name="role" class="w-full border-gray-300 rounded-md p-2" required>
+                <option :value="['user']">Użytkownik</option>
+<option :value="['admin']">Administrator</option>
+<option :value="['mod']">Moderator</option>
+              </select>
+            </div>
+            <button type="submit" class="bg-amber-300 hover:bg-amber-500 text-white px-4 py-2 rounded-md">Dodaj użytkownika</button>
+          </form>
     </div>
   </div>
 
@@ -207,6 +224,7 @@
     </div>
   </template>
   <script>
+  import axios from 'axios'; // Dodaj import Axios
   export default {
     data() {
       return {
@@ -214,35 +232,61 @@
         showDropDown2: false,
         showSide: true,
         newUser: {
-        name: '',
-        role: ''
+        username: '',
+        email:'',
+        password:'',
+        roles: 'user'
+ 
       },
-      users: [
-        { name: 'Użytkownik 1', role: 'Administrator' },
-        { name: 'Użytkownik 2', role: 'Użytkownik' }
-        // Tutaj możesz dodać więcej użytkowników
-      ]
+      users: [] 
       }
     },
+    mounted() {
+    this.getUsers(); // Pobierz listę użytkowników przy załadowaniu komponentu
+  },
     methods: {
-
+      getUsers() {
+      axios.get('http://localhost:8000/api/auth/users') // Zakładając, że to jest endpoint do pobierania użytkowników
+        .then(response => {
+          this.users = response.data;
+        })
+        .catch(error => {
+          console.error('Błąd podczas pobierania użytkowników: ', error);
+        });
+    },
+    addUser() {
+      axios.post('http://localhost:8000/api/auth/signup', this.newUser)
+        .then(response => {
+     
+          console.log('Dodano użytkownika: ', response.data);
+          this.getUsers();
+          this.newUser = { username: '', email: '', password: '', roles: 'user' }; // Wyczyść formularz
+        })
+        .catch(error => {
+          console.error('Błąd podczas dodawania użytkownika: ', error);
+        });
+    },
 toggleSideBar() {
   this.showSide = !this.showSide
 
 },
 showConfirmation(username) {
-      if (confirm("Czy na pewno chcesz usunąć użytkownika " + username + "?")) {
+  if (confirm("Czy na pewno chcesz usunąć użytkownika " + username + "?")) {
+    axios.delete(`http://localhost:8000/api/auth/delete/${username}`)
+      .then(response => {
         alert("Użytkownik " + username + " został usunięty.");
-        // Tutaj możesz dodać logikę usuwania użytkownika z systemu
-      }
-    },
-    addUser() {
-      // Tutaj można dodać logikę dodawania użytkownika do listy
-      // W tym przykładzie zaimplementowana jest jedynie logika dodawania użytkownika do tablicy 'users'
-      this.users.push({ name: this.newUser.name, role: this.newUser.role });
-      this.newUser.name = '';
-      this.newUser.role = '';
-    },
+        // Możesz dodać dodatkowe czynności po usunięciu użytkownika, np. aktualizację listy użytkowników
+        this.getUsers(); // Przykładowa metoda do ponownego pobrania listy użytkowników
+      })
+      .catch(error => {
+        console.error('Błąd podczas usuwania użytkownika: ', error);
+        // Obsługa błędów usuwania użytkownika
+        alert("Wystąpił błąd podczas usuwania użytkownika " + username + ".");
+      });
+  }
+},
+
+
 
 toggleDrop() {
   this.showDropDown = !this.showDropDown
@@ -252,7 +296,9 @@ toggleDrop2() {
   this.showDropDown2 = !this.showDropDown2
 
 }
+
 }
+
   
   }
   </script>

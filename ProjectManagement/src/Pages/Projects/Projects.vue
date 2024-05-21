@@ -183,16 +183,24 @@
                 <th @click="sortByColumn('key')" class="cursor-pointer">Klucz</th>
                 <th @click="sortByColumn('type')" class="cursor-pointer">Typ</th>
                 <th @click="sortByColumn('leader')" class="cursor-pointer">Lider</th>
+                <th @click="sortByColumn('users')" class="cursor-pointer">Użytkownicy przypisani</th>
                 <th @click="sortByColumn('more')" class="cursor-pointer float-right">Więcej</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="project in sortedProjects" :key="project.key">
                 <td class="border px-4 py-2">{{ project.name }}</td>
-                <td class="border px-4 py-2">{{ project.key }}</td>
+                <td class="border px-4 py-2">{{ project.keyProject }}</td>
                 <td class="border px-4 py-2">{{ project.type }}</td>
-                <td class="border px-4 py-2">{{ project.leader }}</td>
+                <td class="border px-4 py-2">{{ project.leader.username }}</td>
+                <td class="border px-4 py-2">
+  <ul>
+    <li v-for="user in project.users" :key="user.id">{{ user.username }}</li>
+  </ul>
+</td>
                 <td class="border px-4 py-2"> 
+         
+             
                   <!-- Dropdown z opcjami dla każdego projektu -->
                   <div class="w-[50px] float-right ">
                     <div class="flex items-center  justify-start space-x-2" @click="toggleDrop3">
@@ -200,8 +208,8 @@
                     </div>
                     <div v-show="showDropDown3" class="absolute right-[10px] z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-2">
                       <div class="py-1 text-left" role="none">
-                        <router-link to="/edit" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">Ustawienia projektu</router-link>
-                        <form method="POST" action="#" role="none">
+                        <router-link :to="{ name: 'edit', params: { id: project.id } }" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">Ustawienia projektu</router-link>
+      <form method="POST" action="#" role="none">
                           <button type="submit" class="text-gray-700 block w-full px-4 py-2 text-left text-sm" role="menuitem" tabindex="-1" id="menu-item-3">Usuń</button>
                         </form>
                       </div>
@@ -221,33 +229,70 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
       showSide: true,
-      sortBy: 'name', // Default sorting option
-      projects: [
-        { name: 'Projekt 1', key: 'PROJ1', type: 'Zarządzani usługami', leader: 'Czarek' },
-        { name: 'Projekt 2', key: 'PROJ2', type: 'Projekt zarządzany przez firmę', leader: 'Jarek' },
-        { name: 'Projekt 3', key: 'PROJ3', type: 'Projekt zarządzany przez firmę', leader: 'Marek' },
-        { name: 'Projekt 4', key: 'PROJ4', type: 'Projekt zarządzany przez zespół', leader: 'Darek' }
-      ],
+      sortBy: 'name',
+      projects: [],
       showDropDown: false,
       showDropDown2: false,
       showDropDown3: false,
-      showSide: true
     }
+  },
+  mounted() {
+    this.fetchProjects();
   },
   computed: {
-    sortedProjects() {
-      return this.projects.slice().sort((a, b) => {
-        if (a[this.sortBy] < b[this.sortBy]) return -1;
-        if (a[this.sortBy] > b[this.sortBy]) return 1;
-        return 0;
-      });
-    }
-  },
+  sortedProjects() {
+    let projectsArray = Array.isArray(this.projects) ? this.projects : [];
+    return projectsArray.slice().sort((a, b) => {
+      if (a[this.sortBy] < b[this.sortBy]) return -1;
+      if (a[this.sortBy] > b[this.sortBy]) return 1;
+      return 0;
+    });
+  }
+},
+
   methods: {
+    async fetchProjects() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/projects');
+        this.projects = response.data;
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    },
+  
+    async deleteProject(id) {
+      try {
+        await axios.delete(`/api/auth/projects/${id}`);
+        this.projects = this.projects.filter(project => project.id !== id);
+      } catch (error) {
+        console.error('Error deleting project:', error);
+      }
+    },
+    async createProject(project) {
+      try {
+        const response = await axios.post('/api/auth/projects', project);
+        this.projects.push(response.data);
+      } catch (error) {
+        console.error('Error creating project:', error);
+      }
+    },
+    async updateProject(id, project) {
+      try {
+        const response = await axios.put(`/api/auth/projects/${id}`, project);
+        const index = this.projects.findIndex(p => p.id === id);
+        if (index !== -1) {
+          this.projects.splice(index, 1, response.data);
+        }
+      } catch (error) {
+        console.error('Error updating project:', error);
+      }
+    },
     sortByColumn(column) {
       if (this.sortBy === column) {
         this.sortBy = '';
@@ -269,6 +314,7 @@ export default {
     }
   }
 }
+
 </script>
 
 <style>
