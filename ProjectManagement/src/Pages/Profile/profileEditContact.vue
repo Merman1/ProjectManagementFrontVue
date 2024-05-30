@@ -136,7 +136,7 @@
               <div class="flex items-center justify-start space-x-4" @click="toggleDrop">
                 <img class="w-10 h-10 rounded-full border-2 border-gray-50" src="../../assets/profil.png" alt="">
                 <div class="font-semibold dark:text-black text-left">
-                  <div>Jarek</div>
+                  <div>{{ userData2.username }}</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">User</div>
                 </div>
               </div>
@@ -173,23 +173,23 @@
         
        
             <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full  text-white text-left">Kontakt</div>
-          <form @submit.prevent="updateProject">
-            
+          <form @submit.prevent="updateProject2">
+           
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Adres email</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Adres email</label>
+              <input type="text" v-model="userData2.email" id="email" name="email" autocomplete="email" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
             </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Telefon</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="number" class="block text-lg font-medium text-gray-700 mb-2">Telefon</label>
+              <input type="text" v-model="userData2.number" id="number" name="number" autocomplete="number" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
             </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Lokalizacja</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="location" class="block text-lg font-medium text-gray-700 mb-2">Lokalizacja</label>
+              <input type="text" v-model="userData2.location" id="location" name="location" autocomplete="location" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
             </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Organizacja</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="organization" class="block text-lg font-medium text-gray-700 mb-2">Organizacja</label>
+              <input type="text" v-model="userData2.organization" id="organization" name="organization" autocomplete="organization" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
             </div>
             <div class="flex justify-center">
       <button type="submit" @click="showAlert = true" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3">Zapisz</button>
@@ -205,8 +205,8 @@
       <div class="bg-white p-8 rounded-md shadow-md max-w-md">
         <p class="text-lg mb-4">Czy na pewno chcesz zapisać?</p>
         <div class="flex justify-center">
-          <button @click="saveChanges" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3 mr-4">Zapisz</button>
-          <button @click="cancelChanges" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
+          <button @click="updateUser2" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3 mr-4">Zapisz</button>
+          <button @click="showAlert=false" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
         </div>
       </div>
     </div>
@@ -224,27 +224,69 @@
     </div>
   </template>
   <script>
+    import axios from 'axios';
   export default {
     data() {
       return {
+        showEmailInput: false,
         showDropDown: false,
         showDropDown2: false,
         showSide: true,
         showAlert: false,
-        editedProject: {
-        name: '',
-        key: '',
-        type: '',
-        leader: '',
-        description: ''
+        userData2: {
+          email: '',
+          username:'',
+          number:'',
+          location:'',
+          organization:'',
       }
       }
+    },
+    mounted() {
+      this.fetchUserData();
     },
     methods: {
-        updateProject() {
-      // Tutaj dodaj logikę do zapisu zmienionych danych projektu
-      // np. wywołanie API lub zapis do lokalnej bazy danych
+      fetchUserData() {
+      axios.get('http://localhost:8000/api/auth/user')
+        .then(response => {
+          this.userData2 = response.data;
+        })
+        .catch(error => {
+          console.error('There was an error fetching the user data!', error);
+        });
     },
+    updateUser2() {
+  // Tworzymy obiekt z danymi, które użytkownik chce zaktualizować
+  const updatedFields = {};
+  
+  // Sprawdzamy, które pola zostały zmienione
+  if (this.updateUser2.email !== '') {
+    updatedFields.email = this.updateUser2.email;
+  }
+  if (this.updateUser2.number !== '') {
+    updatedFields.number = this.updateUser2.number;
+  }
+  if (this.updateUser2.location !== '') {
+    updatedFields.location = this.updateUser2.location;
+  }
+  if (this.updateUser2.organization !== '') {
+    updatedFields.organization = this.updateUser2.organization;
+  }
+
+
+  // Wysyłamy tylko zmienione pola do serwera
+  axios.put('http://localhost:8000/api/auth/user/update', updatedFields)
+    .then(response => {
+      console.log('User updated:', response.data);
+        this.$router.push('/profile');
+    })
+    .catch(error => {
+      console.error('Error updating user:', error);
+    });
+},
+
+  },
+   
 toggleSideBar() {
   this.showSide = !this.showSide
 
@@ -255,8 +297,8 @@ toggleDrop() {
 
 },
 saveChanges() {
-      // Tutaj możesz dodać logikę zapisu danych
-      this.showAlert = false; // Ukryj alert po zapisaniu zmian
+      this.updateUser2();
+      this.showAlert = false;
     },
     cancelChanges() {
       // Tutaj możesz dodać logikę anulowania zmian
@@ -268,7 +310,7 @@ toggleDrop2() {
 }
 }
   
-  }
+  
   </script>
   
   <style>

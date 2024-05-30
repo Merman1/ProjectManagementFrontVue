@@ -159,7 +159,7 @@
           </div>
         </div>
         <div class="h-[calc(100vh-50px)] bg-gray-50 p-[20px]">
-  <div class="border border-gray-300 rounded-md p-[20px] h-full">
+  <div class="border border-gray-300 rounded-md p-[20px] h-full overflow-auto">
     <div class="px-[20px]">
       <h3 class="font-bold text-left text-xl mb-4">EDYTUJ DANE OSOBOWE</h3>
       <div class="flex space-x-4">
@@ -168,29 +168,32 @@
                 </div>
       
       <div class="flex justify-center items-center h-full space-x-8">
-       
-        <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
+
         
         <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
             <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full  text-white text-left">Dane osobowe</div>
          
-         <form @submit.prevent="updateProject">
+         <form @submit.prevent="updateProject3">
            <div class="mb-6">
-             <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Imię i nazwisko</label>
-             <input type="text" v-model="editedProject.name" id="name" name="name" autocomplete="name" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
+             <label for="lastName" class="block text-lg font-medium text-gray-700 mb-2">Imię</label>
+             <input type="text" v-model="userData3.lastName" id="lastName" name="lastName" autocomplete="lastName" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
            </div>
            <div class="mb-6">
-             <label for="key" class="block text-lg font-medium text-gray-700 mb-2">Nazwa publiczna</label>
-             <input type="text" v-model="editedProject.key" id="key" name="key" autocomplete="key" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+             <label for="firstName" class="block text-lg font-medium text-gray-700 mb-2">Nazwisko</label>
+             <input type="text" v-model="userData3.lastName" id="firstName" name="firstName" autocomplete="firstName" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
            </div>
            <div class="mb-6">
-             <label for="type" class="block text-lg font-medium text-gray-700 mb-2">Nazwa stanowiska</label>
-             <input type="text" v-model="editedProject.type" id="type" name="type" autocomplete="type" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+             <label for="publicName" class="block text-lg font-medium text-gray-700 mb-2">Nazwa publiczna</label>
+             <input type="text" v-model="userData3.publicName" id="publicName" name="publicName" autocomplete="publicName" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+           </div>
+           <div class="mb-6">
+             <label for="positionName" class="block text-lg font-medium text-gray-700 mb-2">Nazwa stanowiska</label>
+             <input type="text" v-model="userData3.positionName" id="positionName" name="positionName" autocomplete="positionName" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
            </div>
        
            <div class="mb-6">
-             <label for="type" class="block text-lg font-medium text-gray-700 mb-2">Miejscowość</label>
-             <input type="text" v-model="editedProject.type" id="type" name="type" autocomplete="type" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+             <label for="adress" class="block text-lg font-medium text-gray-700 mb-2">Miejscowość</label>
+             <input type="text" v-model="userData3.adress" id="adress" name="adress" autocomplete="adress" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
            </div>
           
           
@@ -208,14 +211,14 @@
       <div class="bg-white p-8 rounded-md shadow-md max-w-md">
         <p class="text-lg mb-4">Czy na pewno chcesz zapisać?</p>
         <div class="flex justify-center">
-          <button @click="saveChanges" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3 mr-4">Zapisz</button>
-          <button @click="cancelChanges" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
+          <button @click="updateUser3" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3 mr-4">Zapisz</button>
+          <button @click="showAlert=false" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
         </div>
       </div>
     </div>
   </div>
        </div>
-      </div>
+   
     </div>
   </div>
 </div>
@@ -227,6 +230,7 @@
     </div>
   </template>
   <script>
+    import axios from 'axios';
   export default {
     data() {
       return {
@@ -234,27 +238,72 @@
         showDropDown2: false,
         showSide: true,
         showAlert: false,
-        editedProject: {
-        name: '',
-        key: '',
-        type: '',
-        leader: '',
-        description: ''
+        userData3: {
+          email: '',
+          username:'',
+          passowrd:'',
+          publicName:'',
+          firstName:'',
+          lastName:'',
+          positionName:'',
+          adress:'',
+          number:'',
+          location:'',
+          organization:'',
       }
       }
+    },
+    mounted() {
+      this.fetchUserData3();
     },
     methods: {
-        updateProject() {
-      // Tutaj dodaj logikę do zapisu zmienionych danych projektu
-      // np. wywołanie API lub zapis do lokalnej bazy danych
+      async fetchUserData3() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData3 = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
     },
+    updateUser3() {
+  // Tworzymy obiekt z danymi, które użytkownik chce zaktualizować
+  const updatedFields = {};
+  
+  // Sprawdzamy, które pola zostały zmienione
+  if (this.userData3.lastName !== '') {
+    updatedFields.lastName = this.userData3.lastName;
+  }
+  if (this.userData3.firstName !== '') {
+    updatedFields.firstName = this.userData3.firstName;
+  }
+  if (this.userData3.positionName !== '') {
+    updatedFields.positionName = this.userData3.positionName;
+  }
+  if (this.userData3.publicName !== '') {
+    updatedFields.publicName = this.userData3.publicName;
+  }
+  if (this.userData3.adress !== '') {
+    updatedFields.adress = this.userData3.adress;
+  }
+
+  // Wysyłamy tylko zmienione pola do serwera
+  axios.put('http://localhost:8000/api/auth/user/update', updatedFields)
+    .then(response => {
+      console.log('User updated:', response.data);
+        this.$router.push('/profile');
+    })
+    .catch(error => {
+      console.error('Error updating user:', error);
+    });
+},
+    
 toggleSideBar() {
   this.showSide = !this.showSide
 
 },
 saveChanges() {
-      // Tutaj możesz dodać logikę zapisu danych
-      this.showAlert = false; // Ukryj alert po zapisaniu zmian
+      this.updateUser3();
+      this.showAlert = false;
     },
     cancelChanges() {
       // Tutaj możesz dodać logikę anulowania zmian

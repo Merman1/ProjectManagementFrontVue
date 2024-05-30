@@ -172,26 +172,26 @@
         <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
         
      
-  <!-- Formularz -->
-  <form @submit.prevent="updateProject">
-    <div class="mb-6">
-      <label for="old-password" class="block text-lg font-medium text-gray-700 mb-2">Stare hasło</label>
-      <input type="password" v-model="editedProject.oldPassword" id="old-password" name="old-password" autocomplete="current-password" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
-    </div>
-    <div class="mb-6">
-      <label for="new-password" class="block text-lg font-medium text-gray-700 mb-2">Nowe hasło</label>
-      <input type="password" v-model="editedProject.newPassword" id="new-password" name="new-password" autocomplete="new-password" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-    </div>
-    <div class="mb-6">
-      <label for="confirm-password" class="block text-lg font-medium text-gray-700 mb-2">Powtórz nowe hasło</label>
-      <input type="password" v-model="editedProject.confirmPassword" id="confirm-password" name="confirm-password" autocomplete="new-password" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-    </div>
+    <!-- Formularz edycji hasła -->
+    <form @submit.prevent="updatePassword2">
+        <div class="mb-6">
+          <label for="old-password" class="block text-lg font-medium text-gray-700 mb-2">Stare hasło</label>
+          <input type="password" v-model="editedPassword.oldPassword" id="old-password" name="old-password" autocomplete="current-password" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
+        </div>
+        <div class="mb-6">
+          <label for="new-password" class="block text-lg font-medium text-gray-700 mb-2">Nowe hasło</label>
+          <input type="password" v-model="editedPassword.newPassword" id="new-password" name="new-password" autocomplete="new-password" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+        </div>
+        <div class="mb-6">
+          <label for="confirm-password" class="block text-lg font-medium text-gray-700 mb-2">Powtórz nowe hasło</label>
+          <input type="password" v-model="editedPassword.confirmPassword" id="confirm-password" name="confirm-password" autocomplete="new-password" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+        </div>
 
-    <div class="flex justify-center">
-      <button type="submit" @click="showAlert = true" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3">Zapisz</button>
-      <button type="submit" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
-    </div>
-  </form>
+        <div class="flex justify-center">
+          <button type="submit" @click="showAlert = true" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3">Zapisz</button>
+          <button type="submit" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
+        </div>
+      </form>
 
   <div class="relative">
   
@@ -202,7 +202,7 @@
         <p class="text-lg mb-4">Czy na pewno chcesz zapisać?</p>
         <div class="flex justify-center">
           <button @click="saveChanges" class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-6 py-3 mr-4">Zapisz</button>
-          <button @click="cancelChanges" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
+          <button @click="showAlert=false" class="text-black font-semibold rounded-md px-6 py-3">Anuluj</button>
         </div>
       </div>
     </div>
@@ -221,6 +221,7 @@
     </div>
   </template>
   <script>
+  import axios from 'axios';
   export default {
     data() {
       return {
@@ -228,22 +229,33 @@
         showDropDown2: false,
         showSide: true,
         showAlert: false,
-        editedProject: {
-        name: '',
-        key: '',
-        type: '',
-        leader: '',
-        description: '',
-        
+        editedPassword: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
       }
       }
     },
     methods: {
-        updateProject() {
-            
-    },
+      updatePassword() {
+console.log("Dane do aktualizacji:", this.editedPassword);
+},
+
+
+
+  
     saveChanges() {
-      // Tutaj możesz dodać logikę zapisu danych
+      axios.put('http://localhost:8000/api/auth/user/update-password', this.editedPassword)
+    .then(response => {
+      console.log("Odpowiedź z serwera:", response);
+      console.log("Dane z odpowiedzi:", response.data);
+      // Obsłuż odpowiedź z serwera
+    })
+    .catch(error => {
+      console.error("Błąd podczas aktualizacji hasła:", error);
+      console.error("Wiadomość błędu:", error.response.data);
+      // Obsłuż błędy zapytania
+    });
       this.showAlert = false; // Ukryj alert po zapisaniu zmian
     },
     cancelChanges() {

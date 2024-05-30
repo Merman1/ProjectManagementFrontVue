@@ -14,9 +14,13 @@
     "@fullcalendar/resource-timeline": "^6.1.11",
     "@fullcalendar/vue3": "^6.1.11",
     "axios": "^1.6.8",
+    "chart.js": "^4.4.3",
+    "gantt-chart": "^1.1.0",
     "vue": "^3.4.21",
+    "vue-ganttastic": "^0.9.34",
     "vue-multiselect": "^3.0.0",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

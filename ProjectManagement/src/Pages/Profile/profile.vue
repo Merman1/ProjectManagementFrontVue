@@ -136,7 +136,7 @@
               <div class="flex items-center justify-start space-x-4" @click="toggleDrop">
                 <img class="w-10 h-10 rounded-full border-2 border-gray-50" src="../../assets/profil.png" alt="">
                 <div class="font-semibold dark:text-black text-left">
-                  <div>Jarek</div>
+                  <div>{{ userData.username }}</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">User</div>
                 </div>
               </div>
@@ -159,63 +159,64 @@
           </div>
         </div>
         <div class="h-[calc(100vh-50px)] bg-gray-50 p-[20px]">
-  <div class="border border-gray-300 rounded-md p-[20px] h-full">
-    <div class="px-[20px]">
-      <h3 class="font-bold text-left text-xl mb-4">TWÓJ PROFIL</h3>
-      <div class="flex space-x-4">
-                <router-link to="/editUser" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Edytuj dane osobowe</router-link>
-                <router-link to="/editContact" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Edytuj dane kontaktowe</router-link>
-                <router-link to="/editLogins" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zmień hasło</router-link>
+        <div class="border border-gray-300 rounded-md p-[20px] h-full">
+          <div class="px-[20px]">
+            <h3 class="font-bold text-left text-xl mb-4">TWÓJ PROFIL</h3>
+            <div class="flex space-x-4 mb-8">
+              <router-link to="/editUser" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Edytuj dane osobowe</router-link>
+              <router-link to="/editContact" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Edytuj dane kontaktowe</router-link>
+              <router-link to="/editLogins" class="bg-amber-300 text-white px-4 py-2 rounded-md shadow-md transition duration-300 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zmień hasło</router-link>
             </div>
-      
-      <div class="flex justify-center items-center h-full space-x-8">
-       
-        <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
-            <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full  text-white text-left">Dane osobowe</div>
+            <div class="flex justify-center items-center h-full space-x-8">
+        
+     
+              <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
+                <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full text-white text-left">Dane osobowe</div>
+           
          
-          <form @submit.prevent="updateProject">
+          <form>
             <div class="mb-6">
-              <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Imię i nazwisko</label>
-              <input type="text" v-model="editedProject.name" id="name" name="name" autocomplete="name" class="mt-1 focus:ring-gray-50 focus:border-green-500 block w-full shadow-sm sm:text-sm border-green-500 rounded-md px-4 py-3">
+              <label for="firstName" class="block text-lg font-medium text-gray-700 mb-2">Imię </label>
+              <label  for="firstName" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.firstName }} </label>
+           
             </div>
             <div class="mb-6">
-              <label for="key" class="block text-lg font-medium text-gray-700 mb-2">Nazwa publiczna</label>
-              <input type="text" v-model="editedProject.key" id="key" name="key" autocomplete="key" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="lastNme" class="block text-lg font-medium text-gray-700 mb-2">Nazwisko </label>
+              <label  for="lastName" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.lastName }} </label>
+           
             </div>
+          
             <div class="mb-6">
-              <label for="type" class="block text-lg font-medium text-gray-700 mb-2">Nazwa stanowiska</label>
-              <input type="text" v-model="editedProject.type" id="type" name="type" autocomplete="type" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-            </div>
+              <label for="positionName" class="block text-lg font-medium text-gray-700 mb-2">Nazwa stanowiska</label>
+             <label for="positionName" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.positionName }} </label>
+             </div>
         
             <div class="mb-6">
-              <label for="type" class="block text-lg font-medium text-gray-700 mb-2">Miejscowość</label>
-              <input type="text" v-model="editedProject.type" id="type" name="type" autocomplete="type" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-            </div>
+              <label for="adress" class="block text-lg font-medium text-gray-700 mb-2">Miejscowość</label>
+              <label for="adress" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.adress }} </label> 
+              </div>
            
            
            
           </form>
         </div>
         <div class="bg-gray-50 px-6 py-8 rounded-md shadow-md w-full space-y-8 max-w-md text-left">
-            <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full  text-white text-left">Kontakt</div>
-          <form @submit.prevent="updateProject">
+                <div class="bg-cyan-700 px-6 py-8 rounded-md shadow-md w-full text-white text-left">Dane kontaktowe</div>
+                <form >
             
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Adres email</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
+              <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Adres email</label>
+              <label for="email" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.email }} </label> 
             </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Telefon</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-            </div>
+              <label for="number" class="block text-lg font-medium text-gray-700 mb-2">Telefon</label>
+              <label for="number" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.number }} </label> </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Lokalizacja</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-            </div>
+              <label for="location" class="block text-lg font-medium text-gray-700 mb-2">Lokalizacja</label>
+              <label for="location" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.location }} </label>  </div>
             <div class="mb-6">
-              <label for="leader" class="block text-lg font-medium text-gray-700 mb-2">Organizacja</label>
-              <input type="text" v-model="editedProject.leader" id="leader" name="leader" autocomplete="leader" class="mt-1 focus:ring-gray-50 focus:border-gray-50 block w-full shadow-sm sm:text-sm border-gray-50 rounded-md px-4 py-3">
-            </div>
+              <label for="organization" class="block text-lg font-medium text-gray-700 mb-2">Organizacja</label>
+              <label for="organization" class="block text-lg font-medium text-gray-700 mb-2">{{ userData.organization }} </label>   </div>
       
           </form>
         </div>
@@ -231,12 +232,26 @@
     </div>
   </template>
   <script>
+  import axios from 'axios';
   export default {
     data() {
       return {
         showDropDown: false,
         showDropDown2: false,
         showSide: true,
+        userData: {
+          email: '',
+          username:'',
+          passowrd:'',
+          publicName:'',
+          firstName:'',
+          lastName:'',
+          positionName:'',
+          adress:'',
+          number:'',
+          location:'',
+          organization:'',
+        },
         editedProject: {
         name: '',
         key: '',
@@ -246,7 +261,19 @@
       }
       }
     },
+    mounted() {
+    // Wywołanie funkcji do pobrania danych użytkownika po załadowaniu komponentu
+    this.fetchUserData();
+  },
     methods: {
+      async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
+    },
         updateProject() {
       // Tutaj dodaj logikę do zapisu zmienionych danych projektu
       // np. wywołanie API lub zapis do lokalnej bazy danych

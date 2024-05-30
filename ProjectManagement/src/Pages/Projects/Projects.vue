@@ -131,7 +131,7 @@
             <div class="flex items-center justify-start space-x-4" @click="toggleDrop">
               <img class="w-10 h-10 rounded-full border-2 border-gray-50" src="../../assets/profil.png" alt="">
               <div class="font-semibold dark:text-black text-left">
-                <div>Jarek</div>
+                <div>{{userData.username}}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">User</div>
               </div>
             </div>
@@ -174,54 +174,42 @@
             </form>
             <div class="my-20"></div>
           </div>
-          <!-- Tabela z listą projektów -->
-          <router-view></router-view>
-          <table class="w-full border-collapse">
-            <thead>
-              <tr>
-                <th @click="sortByColumn('name')" class="cursor-pointer">Nazwa</th>
-                <th @click="sortByColumn('key')" class="cursor-pointer">Klucz</th>
-                <th @click="sortByColumn('type')" class="cursor-pointer">Typ</th>
-                <th @click="sortByColumn('leader')" class="cursor-pointer">Lider</th>
-                <th @click="sortByColumn('users')" class="cursor-pointer">Użytkownicy przypisani</th>
-                <th @click="sortByColumn('more')" class="cursor-pointer float-right">Więcej</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="project in sortedProjects" :key="project.key">
-                <td class="border px-4 py-2">{{ project.name }}</td>
-                <td class="border px-4 py-2">{{ project.keyProject }}</td>
-                <td class="border px-4 py-2">{{ project.type }}</td>
-                <td class="border px-4 py-2">{{ project.leader.username }}</td>
-                <td class="border px-4 py-2">
-  <ul>
-    <li v-for="user in project.users" :key="user.id">{{ user.username }}</li>
-  </ul>
-</td>
-                <td class="border px-4 py-2"> 
-         
-             
-                  <!-- Dropdown z opcjami dla każdego projektu -->
-                  <div class="w-[50px] float-right ">
-                    <div class="flex items-center  justify-start space-x-2" @click="toggleDrop3">
-                      <img class="w-10 h-10 rounded-full  border-2 border-gray-50" src="../../assets/more.png" alt="">
-                    </div>
-                    <div v-show="showDropDown3" class="absolute right-[10px] z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-2">
-                      <div class="py-1 text-left" role="none">
-                        <router-link :to="{ name: 'edit', params: { id: project.id } }" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">Ustawienia projektu</router-link>
-      <form method="POST" action="#" role="none">
-                          <button type="submit" class="text-gray-700 block w-full px-4 py-2 text-left text-sm" role="menuitem" tabindex="-1" id="menu-item-3">Usuń</button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tr>
-              <td colspan="4" class="border-t"></td>
-            </tr>
-          </table>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div v-for="project in sortedProjects" :key="project.id" :style="{ backgroundColor: generateColor(project.id) }" class="border border-gray-300 rounded-md p-4 flex flex-col relative">
+    <!-- Użyj router-link do obsługi kliknięcia -->
+    <router-link :to="'/home/'" @click.native="selectProject(project.id)">
+      <h3 class="font-bold text-xl">{{ project.name }}</h3>
+      <p>{{ project.type }}</p>
+      <p>Lider: {{ project.leader.username }}</p>
+      <p>Użytkownicy przypisani:</p>
+      <ul>
+        <li v-for="user in project.users" :key="user.id">{{ user.username }}</li>
+      </ul>
+    </router-link>
+    <!-- Przyciski z opcjami dla każdego projektu -->
+    <div class="mt-auto flex justify-end absolute top-0 right-0">
+      <button @click="toggleOptions(project.id)" class="px-4 py-2 bg-transparent text-gray-700 rounded-md">
+        <img class="w-6 h-6" src="../../assets/more.png" alt="Więcej opcji">
+      </button>
+      <!-- Opcje po kliknięciu na przycisk -->
+      <div v-if="showOptionsId === project.id" class="absolute top-[100%] right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-1 z-10">
+        <button @click="editProject(project.id)" class="block w-full px-4 py-2 text-gray-700 hover:bg-gray-200">Edytuj</button>
+        <button @click="deleteProject(project.id)" class="block w-full px-4 py-2 text-gray-700 hover:bg-gray-200">Usuń</button>
+      </div>
+    </div>
+    
+  </div>
+  
+        </div>
+           
+    <!-- Kafelek na dole -->
+    <div class="absolute left-1/2 transform -translate-x-1/2 bg-gray-300 rounded-b-md p-8 flex justify-between w-[calc(100%-100px)] border border-gray-300">
+     <input type="text" class="border border-gray-400 rounded-md px-3 py-2 w-64" placeholder="Nazwa projektu">
+      <div>
+        <button class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-4 py-2 mr-4">Dodaj osobę</button>
+        <button class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-4 py-2">Utwórz projekt</button>
+      </div>
+    </div>
         </div>
       </div>
     </div>
@@ -230,6 +218,7 @@
 
 <script>
 import axios from 'axios';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
@@ -240,10 +229,26 @@ export default {
       showDropDown: false,
       showDropDown2: false,
       showDropDown3: false,
+      
+      userData: {
+          email: '',
+          username:'',
+          passowrd:'',
+          publicName:'',
+          firstName:'',
+          lastName:'',
+          positionName:'',
+          adress:'',
+          number:'',
+          location:'',
+          organization:'',
+        },
+        showOptionsId: null,
     }
   },
   mounted() {
     this.fetchProjects();
+    this.fetchUserData();
   },
   computed: {
   sortedProjects() {
@@ -257,6 +262,38 @@ export default {
 },
 
   methods: {
+    ...mapActions(['selectProject']), // Mapowanie akcji Vuex
+    toggleOptions(id) {
+      if (this.showOptionsId === id) {
+        this.showOptionsId = null;
+      } else {
+        this.showOptionsId = id;
+      }
+    },
+    toggleOptions(id) {
+      if (this.showOptionsId === id) {
+        this.showOptionsId = null;
+      } else {
+        this.showOptionsId = id;
+      }
+    },
+    generateColor(id) {
+      // Generowanie koloru na podstawie identyfikatora projektu
+      const hue = (id * 137) % 360; // Różne projekty będą miały różne odcienie barw
+      return `hsl(${hue}, 70%, 80%)`; // Format HSL dla lepszej kontroli nad jasnością i nasyceniem
+    },
+    async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
+    },
+        updateProject() {
+      // Tutaj dodaj logikę do zapisu zmienionych danych projektu
+      // np. wywołanie API lub zapis do lokalnej bazy danych
+    },
     async fetchProjects() {
       try {
         const response = await axios.get('http://localhost:8000/api/auth/projects');

@@ -187,38 +187,27 @@
     <!-- Siatka projektów -->
     <router-view></router-view>
     <div class="grid grid-cols-4 gap-4">
-      <!-- Projekt 1 -->
-      <div class="bg-cyan-700 hover:bg-cyan-900 rounded-lg p-4">
-        <router-link to="/home" class="router-link-project text-white">
-          <h3 class="font-bold text-lg">Project Zero</h3>
-          <p>Assigned to: Alice, Bob</p>
-        </router-link>
-      </div>
-      <!-- Projekt 2 -->
-      <div class="bg-cyan-700 hover:bg-cyan-900 rounded-lg p-4">
-        <router-link to="/home" class="router-link-project text-white">
-          <h3 class="font-bold text-lg">Project One</h3>
-          <p>Assigned to: Charlie, David</p>
-        </router-link>
-      </div>
-      <!-- Projekt 3 -->
-      <div class="bg-cyan-700 hover:bg-cyan-900 rounded-lg p-4">
-        <router-link to="/home" class="router-link-project text-white">
-          <h3 class="font-bold text-lg">Project Two</h3>
-          <p>Assigned to: Eve, Frank</p>
-        </router-link>
-      </div>
+    
+    
+  
+      <div v-if="sprints.length > 0" class="grid grid-cols-2 md:grid-cols-2 gap-4">
+  <div v-for="sprint in sprints" :key="sprint.id" class="bg-cyan-700 hover:bg-cyan-900 rounded-lg p-4">
+    <router-link :to="'/sprint/' + sprint.id" class="router-link-sprint text-white">
+      <h3 class="font-bold text-lg">{{ sprint.name }}</h3>
+      <p class="text-sm">Typ sprintu: {{ sprint.type }}</p>
+      <p class="text-sm">Data rozpoczęcia: {{ sprint.dataRozpoczecia }}</p>
+      <p class="text-sm">Data zakończenia: {{ sprint.dataZakonczenia }}</p>
+    </router-link>
+  </div>
+</div>
+<div v-else>
+  <p>Brak dostępnych sprintów dla tego projektu.</p>
+</div>
+
+
     </div>
     <hr class="my-10 border-dashed border-gray-300">
-    
-    <!-- Kafelek na dole -->
-    <div class="absolute left-1/2 transform -translate-x-1/2 bg-gray-300 rounded-b-md p-8 flex justify-between w-[calc(100%-100px)] border border-gray-300">
-     <input type="text" class="border border-gray-400 rounded-md px-3 py-2 w-64" placeholder="Nazwa projektu">
-      <div>
-        <button class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-4 py-2 mr-4">Dodaj osobę</button>
-        <button class="bg-amber-300 hover:bg-amber-500 text-white font-semibold rounded-md px-4 py-2">Utwórz projekt</button>
-      </div>
-    </div>
+ 
   </div>
 </div>
   
@@ -230,17 +219,68 @@
 
 
 </template>
+
 <script>
+import axios from 'axios'; // Import axios for making HTTP requests
+import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
       showDropDown: false,
       showDropDown2: false,
-      showSide: true
+      showSide: true,
+      sprints: [],
+      userData: {
+          email: '',
+          username:'',
+          passowrd:'',
+          publicName:'',
+          firstName:'',
+          lastName:'',
+          positionName:'',
+          adress:'',
+          number:'',
+          location:'',
+          organization:'',
+        },
+    }
+  },
+  mounted() {
+    // When the component is mounted, fetch projects from the API
+    this.fetchSprints();
+    this.fetchUserData();
+  },
+  computed: {
+    ...mapGetters(['selectedProjectId']),
+    filteredSprints() {
+      return this.sprints.filter(sprint => sprint.projectId === this.selectedProjectId);
     }
   },
   methods: {
+    async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
+    },
+    fetchSprints() {
+  // Sprawdź, czy wybrano projekt
+  if (!this.$store.getters.selectedProjectId) {
+    console.error('Nie wybrano żadnego projektu.');
+    return;
+  }
 
+  // Pobierz sprinty przypisane do wybranego projektu
+  axios.get(`http://localhost:8000/api/auth/sprints/${this.$store.getters.selectedProjectId}/project_id`)
+    .then(response => {
+      this.sprints = response.data;
+    })
+    .catch(error => {
+      console.error('Błąd pobierania sprintów:', error);
+    });
+},
     toggleSideBar() {
       this.showSide = !this.showSide
 

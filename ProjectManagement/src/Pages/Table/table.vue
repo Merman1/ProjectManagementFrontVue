@@ -168,8 +168,8 @@
           <h3 class="font-bold text-left text-xl">Zadania do zrobienia</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki zadaniami do zrobienia -->
-            <div class="bg-blue-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'toDo')" v-for="(task, index) in tasksToDo" :key="index">
-              <h3 class="font-semibold text-sm">{{ task.title }}</h3>
+            <div class="bg-blue-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'toDo')" v-for="(task, index) in tasks" :key="index">
+              <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
             </div>
           </div>
         </div>
@@ -179,8 +179,8 @@
           <h3 class="font-bold text-left text-xl">Zadania w trakcie realizacji</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki zadaniami w trakcie realizacji -->
-            <div class="bg-green-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'inProgress')" v-for="(task, index) in tasksInProgress" :key="index">
-              <h3 class="font-semibold text-sm">{{ task.title }}</h3>
+            <div class="bg-green-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'inProgress')" v-for="(task, index) in tasks" :key="index">
+              <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
             </div>
           </div>
         </div>
@@ -190,8 +190,8 @@
           <h3 class="font-bold text-left text-xl">Gotowe zadania</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki z gotowymi zadaniami -->
-            <div class="bg-yellow-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'done')" v-for="(task, index) in tasksDone" :key="index">
-              <h3 class="font-semibold text-sm">{{ task.title }}</h3>
+            <div class="bg-yellow-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'done')" v-for="(task, index) in tasks" :key="index">
+              <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
             </div>
           </div>
         </div>
@@ -205,9 +205,9 @@
         <hr class="my-4 border-dashed border-gray-300">
         <!-- Tu będą wyświetlane szczegóły zadania po kliknięciu na kafelek -->
         <div v-if="selectedTask">
-          <h3 class="font-semibold text-lg">{{ selectedTask.title }}</h3>
-          <p>{{ selectedTask.sprint }}</p>
-          <p>{{ selectedTask.description }}</p>
+          <h3 class="font-semibold text-lg">{{ selectedTask.nazwa }}</h3>
+          <p>{{ selectedTask.etap }}</p>
+          <p>{{ selectedTask.scrum }}</p>
           <hr class="my-4 border-dashed border-gray-300">
           <div class="mt-4">
             <label for="assignedTo" class="block font-semibold">Osoba przypisana:</label>
@@ -217,11 +217,11 @@
           <div class="mt-4">
             <label class="block font-semibold">Status:</label>
             <div>
-              <input type="radio" id="toDo" name="status" value="toDo" v-model="selectedTask.status">
+              <input type="radio" id="toDo" name="status" value="toDo" v-model="selectedTask.etap">
               <label for="toDo">Do zrobienia</label><br>
-              <input type="radio" id="inProgress" name="status" value="inProgress" v-model="selectedTask.status">
+              <input type="radio" id="inProgress" name="status" value="inProgress" v-model="selectedTask.etap">
               <label for="inProgress">W trakcie</label><br>
-              <input type="radio" id="done" name="status" value="done" v-model="selectedTask.status">
+              <input type="radio" id="done" name="status" value="done" v-model="selectedTask.etap">
               <label for="done">Gotowe</label><br>
             </div>
           </div>
@@ -249,12 +249,22 @@
     </div>
   </template>
   <script>
+   import axios from 'axios';
   export default {
     data() {
       return {
         showDropDown: false,
         showDropDown2: false,
         showSide: true,
+        tasks:{
+          id:'',
+          etap:'',
+          nazwa:'',
+          creator_id:'',
+          sprint_id:'',
+          scrum:'',
+
+        },
         newComment: '',
         tasksToDo: [
                 { title: 'Zadanie 1', sprint: 'Sprint 1', description: 'Opis zadania 1', status: 'toDo', assignedTo: 'Jan Kowalski' },
@@ -275,7 +285,28 @@
             selectedTask: null
       }
     },
+    mounted(){
+this.fetchIssues();
+    },
     methods: {
+      fetchIssues() {
+      axios.get('http://localhost:8000/api/auth/issues')
+        .then(response => {
+          
+          this.tasks = response.data;
+        })
+        .catch(error => {
+          console.error("Błąd podczas ładowania zadań:", error);
+        });
+    },
+  async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
+    },
         showTaskDetails(task, section) {
             this.selectedTask = task;
         },

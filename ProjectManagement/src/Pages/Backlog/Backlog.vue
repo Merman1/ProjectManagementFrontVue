@@ -135,7 +135,7 @@
               <div class="flex items-center justify-start space-x-4" @click="toggleDrop">
                 <img class="w-10 h-10 rounded-full border-2 border-gray-50" src="../../assets/profil.png" alt="">
                 <div class="font-semibold dark:text-black text-left">
-                  <div>Jarek</div>
+                  <div>{{userData.username}}</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">User</div>
                 </div>
               </div>
@@ -158,28 +158,85 @@
         <div class="h-[calc(100vh-50px)] bg-gray-50 p-[20px]">
     <div class="border border-gray-300 rounded-md p-[20px] h-full w-full overflow-auto mx-auto">
       <div class="px-[20px]">
-        <div class="border border-gray-300 w-[70%] rounded-md p-[10px] mb-4">
-          <div class="flex justify-between items-center">
-  <div class="flex justify-between">
-    <button @click="toggleTasks" class="text-white font-bold py-2 px-4 rounded flex items-center">
-      <img class="w-3 h-3 mr-2 border-gray-50" src="../../assets/arrow.png" alt="">
-      <h3 class="font-bold text-left text-xl text-black">Sprint 1</h3>
-    </button>
+        
 
-    <button class="bg-amber-300 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded">Ukończ sprint</button>
+        <div v-for="sprint in sprints" :key="sprint.id" class="border border-gray-300 w-[70%] rounded-md p-[10px] mb-4 ">
+    <div class="flex justify-between items-center ">
+
+      
+
+        <div class="flex justify-between ">
+          <button @click="toggleTasks(sprint.id)" class="text-white font-bold py-2 px-4 rounded flex items-center">
+        <img class="w-3 h-3 mr-2 border-gray-50" src="../../assets/arrow.png" alt="">
+        <h3 class="font-bold text-left text-xl text-black">{{ sprint.name }}</h3>
+      </button>
+
+      <div>
+  <button v-if="!sprint.started" @click="startSprint(sprint)" class="bg-amber-300 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded">Rozpocznij sprint </button>
+  <button v-else @click="endSprint(sprint)" class="bg-red-300 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">Zakończ sprint</button>
+</div>
+
+
+
+
+<!-- Formularz edycji sprintu -->
+<div v-if="editMode2 === sprint.id" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md">
+  <h2 class="text-2xl font-semibold mb-4">Edytuj Sprint</h2>
+  <form @submit.prevent="updateSprint(sprint)">
+    <div class="mb-4">
+      <label for="name" class="block text-gray-700 font-bold mb-2">Nazwa Sprintu:</label>
+      <input v-model="sprint.name" type="text" id="name" name="name" class="block w-full border-gray-300 rounded-md p-2">
+    </div>
+    <div class="mb-4">
+      <label for="type" class="block text-gray-700 font-bold mb-2">Typ Sprintu:</label>
+      <select v-model="sprint.type" id="type" name="type" class="block w-full border-gray-300 rounded-md p-2">
+        <option value="Feature">Funkcjonalność</option>
+        <option value="Bug Fix">Poprawa błędów</option>
+        <option value="Maintenance">Utrzymanie</option>
+        <option value="Research">Badania</option>
+      </select>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-bold mb-2">Czas trwania:</label>
+      <select v-model="sprint.czasTrwania" class="block w-full border-gray-300 rounded-md p-2">
+        <option value="1 tydzień">1 tydzień</option>
+        <option value="2 tygodnie">2 tygodnie</option>
+        <option value="3 tygodnie">3 tygodnie</option>
+        <option value="4 tygodnie">4 tygodnie</option>
+      </select>
+    </div>
+    <div class="mb-4">
+      <label for="dataRozpoczecia" class="block text-gray-700 font-bold mb-2">Data rozpoczęcia:</label>
+      <input v-model="sprint.dataRozpoczecia" type="date" id="dataRozpoczecia" name="dataRozpoczecia" class="block w-full border-gray-300 rounded-md p-2">
+    </div>
+    <div class="mb-4">
+      <label for="dataZakonczenia" class="block text-gray-700 font-bold mb-2">Data zakończenia:</label>
+      <input v-model="sprint.dataZakonczenia" type="date" id="dataZakonczenia" name="dataZakonczenia" class="block w-full border-gray-300 rounded-md p-2">
+    </div>
+    <div class="mb-4">
+      <label for="celSprintu" class="block text-gray-700 font-bold mb-2">Cel Sprintu:</label>
+      <textarea v-model="sprint.celSprintu" id="celSprintu" name="celSprintu" rows="4" class="block w-full border-gray-300 rounded-md p-2"></textarea>
+    </div>
+    <button type="submit" class="bg-amber-300 text-white px-4 py-2 rounded-md hover:bg-amber-500">Zapisz zmiany</button>
+    <button @click="cancelStart" type="button" class="ml-2 text-gray-600 hover:text-gray-800">Anuluj</button>
+  </form>
+</div>
+
+
+
   </div>
 
 
 
   <div class="relative">
-      <img @click="toggleDrop3" class="w-10 h-10 rounded-full border-2 border-gray-50 cursor-pointer" src="../../assets/more.png" alt="">
+      <img @click="toggleDrop3(sprint.id)" class="w-10 h-10 rounded-full border-2 border-gray-50 cursor-pointer" src="../../assets/more.png" alt="">
       
-      <div v-show="showDropDown3" class="absolute top-10 right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-2">
+      <div v-show="showDropDown3 === sprint.id" class="absolute top-10 right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-2">
         <div class="py-1 text-left" role="none">
-          <a href="#" @click="editSprint" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">Edytuj sprint
+          <a href="#" @click="editSprint(sprint.id)" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">Edytuj sprint
           
           </a>
-       <form method="POST" action="#" role="none">
+       <form @click="deleteSprint" method="POST" action="#" role="none">
             <button type="submit" class="text-gray-700 block w-full px-4 py-2 text-left text-sm" role="menuitem" tabindex="-1" id="menu-item-3">Usuń sprint</button>
           </form>
         </div>
@@ -187,10 +244,10 @@
   </div>
 </div>
  <!-- Formularz edycji sprintu -->
- <div v-if="editMode" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md">
+ <div v-if="editMode === sprint.id" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md">
  
-    <h2 class="text-2xl font-semibold mb-4">Edytuj Sprint "{{ sprintName }}"</h2>
-    <form @submit.prevent="updateSprint">
+    <h2 class="text-2xl font-semibold mb-4">Edytuj Sprint "{{ sprint.name }}"</h2>
+    <form @submit.prevent="updateSprint(sprint.id)">
       <div class="mb-4">
         <label for="sprintName" class="block text-gray-700 font-bold mb-2">Nazwa Sprintu:</label>
         <input v-model="editedSprintName" type="text" id="sprintName" name="sprintName" class="block w-full border-black rounded-md p-2">
@@ -213,45 +270,59 @@
   </div>
 
 
-  <div class="my-4"></div>
-  <div v-if="showTasks">
-    <div v-for="(task, index) in tasks" :key="index" class="border border-gray-300 rounded-md p-[10px] mb-4">
-    <h4 class="font-medium text-left text-lg text-black">{{ task.name }}</h4>
-    <p class="text-gray-600">{{ task.description }}</p>
-    <!-- Pole wyboru pracownika -->
-    <div class="flex items-center mt-2">
-      <label for="employee">Pracownik:</label>
-      <select v-model="task.employee" id="employee" class="ml-2 border border-gray-300 rounded-md p-1">
-        <option value="">Jarosław Kot</option>
-        <option value="">Michał Probierz</option>
-        <option value="">Karol Michniewicz</option>
-        <option value="">Elżbieta Konieczna</option>
-        <!-- Tutaj umieść opcje wyboru pracowników -->
-      </select>
-    </div>
+  <div class="my-4 "></div>
+  <div v-if="showTasks === sprint.id" class="overflow-y-auto max-h-[300px]">
+  <div v-for="(task, taskIndex) in tasks.filter(t => t.sprint && t.sprint.id === sprint.id)" :key="taskIndex" class="border border-gray-300 rounded-md p-[10px] mb-4">
+    <h4 class="font-medium text-left text-lg text-black">Nazwa: {{ task.nazwa }}</h4>
+    <p class="text-gray-600">Identyfikator sprintu: {{ task.sprint.id }}</p>
+    <p class="text-gray-600">Etap: {{ task.etap }}</p>
+    <p class="text-gray-600">Lider: {{ task.lider }}</p>
   </div>
+</div>
+
+
+
     <div class="flex justify-center">
-      <input v-model="newTaskName" @keyup.enter="addTask" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <input v-model="newTaskName" @keyup.enter="addIssue" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
+<!-- Dodajemy pole wyboru etapu zadania -->
+<div class="flex items-center mt-2">
+  <label for="taskStage">Etap zadania:</label>
+  <select v-model="newTaskStage" id="taskStage" class="ml-2 border border-gray-300 rounded-md p-1">
+    <option value="Do zrobienia">Do zrobienia</option>
+    <option value="W trakcie">W trakcie</option>
+    <option value="Gotowe">Gotowe</option>
+  </select>
+</div>
+<!-- Przycisk wyboru użytkownika -->
+<div>
+  <label for="assignedUser">Przypisz użytkownika:</label>
+  <select v-model="assignedUser" id="assignedUser" class="border border-gray-300 rounded-md p-1">
+    <option value="">Wybierz użytkownika</option>
+    <option v-for="user in users" :key="user.id" :value="user.id">{{ user.username }}</option>
+  </select>
+</div>
     </div>
     <div class="my-4 flex items-center">
-      <button @click="addTask" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
+      <button @click="addIssue(sprint.id, sprint.name)" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
         <img class="w-5 h-5 mr-2 border-gray-50" src="../../assets/plus.png" alt="">
         Dodaj zadanie
       </button>
     </div>
-  </div>
+ 
 </div>
 
         <div class="my-20"></div>
         <div class="border border-gray-300 w-[70%] rounded-md p-[10px] mb-4">
        
           <div class="flex justify-between">
-  <button @click="toggleTasks2" class="text-white font-bold py-2 px-4 rounded flex items-center">
+  <button @click="toggleTasks" class="text-white font-bold py-2 px-4 rounded flex items-center">
     <img class="w-3 h-3 mr-2 border-gray-50" src="../../assets/arrow.png" alt="">
     <h3 class="font-bold text-left text-xl text-black">Backlog</h3>
   </button>
 
-  <button class="bg-amber-300 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded">Utwórz sprint</button>
+  <button @click="createNewSprint" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Utwórz sprint
+</button>
 </div>
 <div v-if="showTasks2">
   <div class="my-4"></div>
@@ -259,28 +330,17 @@
   <div v-for="(task2, index) in tasks2" :key="index" class="border border-gray-300 rounded-md p-[10px] mb-4">
     <h4 class="font-medium text-left text-lg text-black">{{ task2.name }}</h4>
     <p class="text-gray-600">{{ task2.description }}</p>
-    <!-- Pole wyboru pracownika -->
-    <div class="flex items-center mt-2">
-      <label for="employee2">Pracownik:</label>
-      <select v-model="task2.employee" id="employee2" class="ml-2 border border-gray-300 rounded-md p-1">
-        <option value="">Wybierz pracownika</option>
-        <option v-for="employee in employees" :value="employee">{{ employee }}</option>
-        <option value="">Jarosław Kot</option>
-        <option value="">Michał Probierz</option>
-        <option value="">Karol Michniewicz</option>
-        <option value="">Elżbieta Konieczna</option>
-      </select>
-    </div>
+ 
   </div>
 
   <!-- Dodawanie nowego zadania -->
   <div class="flex justify-center">
-    <input v-model="newTaskName2" @keyup.enter="addTask2" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    <input v-model="newTaskName2" @keyup.enter="addIssue" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
   </div>
 
   <!-- Przycisk dodawania zadania -->
   <div class="my-4 flex items-center">
-    <button @click="addTask2" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
+    <button @click="addIssue" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
       <img class="w-5 h-5 mr-2 border-gray-50" src="../../assets/plus.png" alt="">
       Dodaj zadanie
     </button>
@@ -300,70 +360,298 @@
     </div>
   </template>
   <script>
+  import { mapGetters } from 'vuex';
+  import axios from 'axios';
   export default {
     data() {
-      return {
-        showDropDown: false,
-        showDropDown2: false,
-        showDropDown3: false,
-        showSide: true,
-        editMode: false,
-      editedSprintName: '', // Przechowuje edytowaną nazwę sprintu
-      sprintName: '', // Przechowuje nazwę sprintu, który będzie edytowany
-        tasks: [],
-      newTaskName: '',
-      tasks2: [],
-      newTaskName2: '',
-      showTasks: true,
-      showTasks2: true
+  return {
+    showDropDown: false,
+    showDropDown2: false,
+    showDropDown3: false,
+    showSide: true,
+    editMode: false,
+    editMode2:false,
+    showTasks: null,
+    sprint: {
+      id: null,
+      name: '',
+      dataRozpoczecia: '',
+      dataZakonczenia: '',
+      celSprintu: '',
+      czasTrwania:'',
+      type:'',
+      projects_id:'',
+    },
+    editedSprintName: '', // Przechowuje edytowaną nazwę sprintu
+    sprintName: '', // Przechowuje nazwę sprintu, który będzie edytowany
+    issues:'',
+    tasks: [],
+    newTaskName: '',
+    newTaskStage: 'Do zrobienia', // Domyślny etap zadania
+    assignedUser: '', // Przechowuje ID przypisanego użytkownika
+    tasks2: [],
+    newTaskName2: '',
+    showTasks: true,
+    showTasks2: true,
+    sprints: [],
+    userData: [],
+    duration: null, // Dodajemy właściwość duration do przechowywania wybranego czasu trwania
+  
+    users: [], // Tablica użytkowników
+    filteredSprints: [],
+  }
+},
+created() {
+    this.fetchSprints();
+  },
+mounted() {
+  
+  // Pobierz dane z localStorage przy ładowaniu komponentu
+  const sprintsData = localStorage.getItem('sprints');
+  if (sprintsData) {
+    this.sprints = JSON.parse(sprintsData);
+  }
+
+  // Załaduj użytkowników z API
+  axios.get('http://localhost:8000/api/auth/users')
+    .then(response => {
+      this.users = response.data;
+    })
+    .catch(error => {
+      console.error("Błąd podczas pobierania użytkowników:", error);
+    });
+    this.fetchUsers();
+    this.fetchSprints();
+    this.fetchUserData();
+    this.fetchIssues();
+},
+computed:{
+  ...mapGetters(['selectedProjectId'])
+},
+
+methods: {
+  
+  fetchIssues() {
+      axios.get('http://localhost:8000/api/auth/issues')
+        .then(response => {
+          this.tasks = response.data;
+        })
+        .catch(error => {
+          console.error("Błąd podczas ładowania zadań:", error);
+        });
+    },
+  async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
       }
     },
-    methods: {
+ 
+
+  updateFilteredSprints() {
+      this.filteredSprints = this.sprints.filter(sprint => sprint.type === 'Sprint');
+    },
+    addIssue(sprintId, sprintName) {
+    if (this.newTaskName.trim() !== '') {
+        const currentUserId = this.$store.getters.loggedInUser?.id;
+        if (!currentUserId) {
+            console.error("Błąd: Użytkownik nie jest zalogowany lub nie ma ID.");
+            return;
+        }
+
+        // Sprawdź, czy assignedUser jest prawidłowo przypisany
+        const assignedUserId = this.assignedUser; 
+        console.log("Id przypisanego użytkownika:", assignedUserId);
+
+        // Logowanie danych nowego zadania
+        console.log("Nazwa nowego zadania:", this.newTaskName);
+        console.log("Etap nowego zadania:", this.newTaskStage);
+        console.log("Przypisany użytkownik:", assignedUserId);
+
+        // Utwórz obiekt nowego zadania
+        const newIssue = {
+            nazwa: this.newTaskName,
+            etap: this.newTaskStage || 'Do zrobienia',
+            users: [{ id: assignedUserId }], 
+            comments: [],
+            creator: { id: currentUserId },
+            sprint: { id: sprintId, name: sprintName },
+            sprintId: sprintId 
+        };
+
+        // Wyślij zapytanie POST do backendu
+        axios.post(`http://localhost:8000/api/auth/issues`, newIssue)
+            .then(response => {
+                console.log("Nowe zadanie zostało dodane:", response.data);
+                // Dodaj nowe zadanie do odpowiedniego sprintu
+             // Dodaj nowe zadanie do odpowiedniego sprintu
+const sprint = this.sprints.find(s => s.id === sprintId);
+if (sprint) {
+    if (!sprint.tasks) {
+        sprint.tasks = []; // Usunięto wywołanie $set
+    }
+    sprint.tasks.push(response.data);
+}
+
+            })
+            .catch(error => {
+                console.error("Błąd podczas dodawania nowego zadania:", error);
+            });
+
+        // Zresetuj pola po dodaniu zadania
+        this.newTaskName = '';
+        this.newTaskStage = 'Do zrobienia';
+        this.assignedUser = null; 
+    }
+},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fetchUsers() {
+      axios.get('http://localhost:8000/api/auth/users')
+        .then(response => {
+          this.users = response.data;
+        })
+        .catch(error => {
+          console.error("Błąd podczas pobierania użytkowników:", error);
+        });
+    },
+
+
+
+  fetchSprints() {
+      axios.get('http://localhost:8000/api/auth/sprints')
+        .then(response => {
+          this.sprints = response.data;
+        })
+        .catch(error => {
+          console.error("Błąd podczas pobierania sprintów:", error);
+        });
+    },
+    createNewSprint() {
+  const newSprintName = `Sprint ${this.sprints.length + 1}`; // Generowanie nazwy na podstawie liczby istniejących sprintów
+  const newSprint = { 
+    name: newSprintName, 
+    projectId: this.$store.getters.selectedProjectId,
+    tasks: []
+  };
+
+  console.log("Próba utworzenia nowego sprintu:", newSprint);
+
+  axios.post('http://localhost:8000/api/auth/sprints', newSprint)
+    .then(response => {
+      console.log("Nowy sprint został utworzony:", response.data);
+      this.sprints.push(response.data); // Aktualizacja listy sprintów po utworzeniu nowego sprintu
+    })
+    .catch(error => {
+      console.error("Błąd podczas tworzenia nowego sprintu:", error);
+      if (error.response) {
+        console.error("Odpowiedź serwera:", error.response.data);
+      }
+    });
+},
+
+
+
+    deleteSprint(sprintId) {
+      axios.delete(`http://localhost:8000/api/auth/sprints/${sprintId}`)
+        .then(response => {
+          console.log("Sprint został usunięty:", response.data);
+          this.sprints = this.sprints.filter(sprint => sprint.id !== sprintId);
+        })
+        .catch(error => {
+          console.error("Błąd podczas usuwania sprintu:", error);
+        });
+    },
+
+
+
 
 toggleSideBar() {
   this.showSide = !this.showSide
 
 },
-addTask() {
-      if (this.newTaskName.trim() !== '') {
-        this.tasks.push({ name: this.newTaskName, description: 'Opis nowego zadania...' });
-        this.newTaskName = ''; // Resetowanie pola tekstowego po dodaniu zadania
-      }
-    },
-    addTask2() {
-      if (this.newTaskName2.trim() !== '') {
-        this.tasks2.push({ name: this.newTaskName2, description: 'Opis nowego zadania...' });
-        this.newTaskName2 = ''; // Resetowanie pola tekstowego po dodaniu zadania
-      }
-    },
-    toggleTasks() {
-        this.showTasks = !this.showTasks;
-      },
-      toggleTasks2() {
-        this.showTasks2 = !this.showTasks2;
-      },
-      editSprint() {
-      this.editMode = true;
-      // Tutaj można ustawić nazwę sprintu, który ma być edytowany
-      // this.sprintName = ...;
-      // Możesz również wczytać nazwę z argumentu funkcji, jeśli chcesz
-      // this.sprintName = ...;
-      // Na potrzeby przykładu ustawiłem pustą nazwę
-      this.sprintName = '';
-      this.editedSprintName = this.sprintName; // Wypełniamy pole formularza aktualną nazwą sprintu
+
+toggleTasks(sprintId) {
+        this.showTasks = this.showTasks === sprintId ? null : sprintId;
     },
 
-    // Funkcja anulująca edycję sprintu i zamykająca formularz
-    cancelEdit() {
-      this.editMode = false;
+    toggleDrop3(sprintId) {
+      this.showDropDown3 = this.showDropDown3 === sprintId ? null : sprintId;
     },
+        editSprint(sprintId) {
+      this.editMode2 = sprintId;
+    },
+    cancelStart() {
+      this.editMode2 = null;
+    },
+ 
+ 
 
-    // Funkcja aktualizująca dane sprintu
-    updateSprint() {
-      // Tutaj dodaj logikę aktualizacji danych sprintu
-      // Po zakończeniu aktualizacji, zakończ edycję i ukryj formularz
-      this.editMode = false;
+    fetchSprintDetails(id) {
+    // Pobierz szczegóły sprintu do edycji (użyj axios lub fetch)
+    axios.get(`http://localhost:8000/api/auth/sprints/${id}`)
+      .then(response => {
+        this.sprint = response.data;
+        this.editMode2 = true;
+      })
+      .catch(error => {
+        console.error("There was an error!", error);
+      });
+  },
+  startSprint(sprint) {
+      axios.put(`http://localhost:8000/api/auth/sprints/${sprint.id}/start`)
+        .then(response => {
+          sprint.isStarted = true;
+          this.editMode2 = sprint.id; // Ustawia tryb edycji dla konkretnego sprintu
+          console.log('Sprint rozpoczęty:', response.data);
+        })
+        .catch(error => {
+          console.error('Błąd rozpoczynania sprintu:', error);
+        });
     },
+    endSprint(sprint) {
+   // Usuń najpierw zadania powiązane z danym sprintem
+
+      
+      // Następnie usuń sprint
+      axios.delete(`http://localhost:8000/api/auth/sprints/${sprint.id}`)
+        .then(response => {
+          console.log('Sprint został usunięty:', response.data);
+          
+          // Aktualizuj listę sprintów po usunięciu sprintu
+          this.sprints = this.sprints.filter(s => s.id !== sprint.id);
+        })
+        .catch(error => {
+          console.error('Błąd podczas usuwania sprintu:', error);
+        });
+   
+    },
+  updateSprint(sprint) {
+    axios.put(`http://localhost:8000/api/auth/sprints/${sprint.id}`, sprint)
+      .then(response => {
+        console.log('Sprint zaktualizowany:', response.data);
+          this.editMode2 = null; // Wyłącz tryb edycji po zapisaniu zmian
+        // lub wyłączenie trybu edycji
+      })
+      .catch(error => {
+        console.error("Błąd podczas aktualizacji sprintu:", error);
+      });
+},
+
 
 toggleDrop() {
   this.showDropDown = !this.showDropDown
@@ -373,10 +661,7 @@ toggleDrop2() {
   this.showDropDown2 = !this.showDropDown2
 
 },
-toggleDrop3() {
-  this.showDropDown3 = !this.showDropDown3
 
-}
 }
   
   }

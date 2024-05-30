@@ -4,10 +4,10 @@
     <h1 class="text-8xl mr-8 font-bold text-amber-500 text-center mb-8">VaultProject</h1>
     <div class="bg-white p-8 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-4">Logowanie</h2>
-      <form @submit.prevent="login">
+      <form @submit.prevent="submitLogin">
         <div class="mb-4">
           <label for="username" class="block text-gray-700">Nazwa użytkownika:</label>
-          <input v-model="username" type="username" id="username" name="username" class="border border-gray-300 rounded-md p-2 w-full">
+          <input v-model="username" type="text" id="username" name="username" class="border border-gray-300 rounded-md p-2 w-full">
         </div>
         <div class="mb-6">
           <label for="password" class="block text-gray-700">Hasło:</label>
@@ -17,13 +17,18 @@
           <button type="submit" class="bg-amber-300 mr-2 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 transition duration-300 ease-in-out">Zaloguj się</button>
           <a href="#" class="text-gray-600 hover:underline">Zapomniałeś hasła?</a>
         </div>
+        <div v-if="errorMessage" class="text-red-500 mt-4">
+          {{ errorMessage }}
+        </div>
       </form>
     </div>
   </div>
 </template>
 
-  
+
+
 <script>
+import { mapActions } from 'vuex';
 import axios from 'axios';
 
 export default {
@@ -31,39 +36,41 @@ export default {
     return {
       username: '',
       password: '',
-      errorMessage: '' // Dodaj pole na komunikat błędu
+      errorMessage: '',
     };
   },
   methods: {
-    async login() {
+    ...mapActions(['login']),
+    async submitLogin() {
       try {
         const response = await axios.post('http://localhost:8000/api/auth/signin', {
           username: this.username,
           password: this.password
         });
-        this.$router.push('/profile');
-        // Sprawdź, czy logowanie powiodło się
-        if (response.data.jwt) {
-          console.log('Logowanie powiodło się. Przekierowanie...');
-          // Przekieruj użytkownika do /profile
-          this.$router.push('/profile');
+
+        if (response.data.accessToken) {
+          await this.login({
+            user: {
+              id: response.data.id,
+              username: response.data.username,
+              email: response.data.email,
+              roles: response.data.roles
+            },
+            jwt: response.data.accessToken
+          });
+          this.$router.push('/projects');
         } else {
-          // Wyświetl komunikat błędu logowania
-          this.errorMessage = 'Nieprawidłowy adres e-mail lub hasło.';
+          console.error('Login failed');
         }
       } catch (error) {
-        console.error('Błąd logowania:', error.response.data.message);
-        // Wyświetl komunikat błędu dla użytkownika
-        this.errorMessage = 'Wystąpił błąd podczas logowania.';
+        console.error('Login error:', error);
       }
-    
+    }
   }
-}
 };
 </script>
 
-  
-  <style scoped>
-  /* Stylowanie dla tego komponentu */
-  </style>
-  
+
+<style scoped>
+/* Stylowanie dla tego komponentu */
+</style>

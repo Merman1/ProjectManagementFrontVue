@@ -169,9 +169,9 @@
             <!-- Suwak dla kafelków zgłoszeń -->
             <div class="overflow-y-auto" style="max-height: 60vh;">
                 <!-- Każdy kafelek zgłoszenia -->
-                <div v-for="(report, index) in reports" :key="index" class="bg-gray-100 p-4 rounded-md shadow-md cursor-pointer mb-4" @click="selectReport(report)">
-                    <h3 class="text-lg font-semibold">{{ report.scrum }}</h3>
-                    <div>{{ report.issue }}</div>
+                <div v-for="(task, index) in tasks" :key="index" class="bg-gray-100 p-4 rounded-md shadow-md cursor-pointer mb-4" @click="selectReport(task)">
+                    <h3 class="text-lg font-semibold">{{ task.nazwa }}</h3>
+                    <div>{{ task.etap }}</div>
                 </div>
             </div>
         </div>
@@ -186,8 +186,8 @@
             <!-- Tytuł i opis zgłoszenia (wyświetlany po wybraniu kafelka) -->
             <div class='my-10'v-if="selectedReport">
                 <div class="space-y-2">
-                    <h2 class="text-2xl font-semibold text-left">{{ selectedReport?.issue }}</h2>
-                    <p class="text-left">{{ selectedReport?.description }}</p>
+                    <h2 class="text-2xl font-semibold text-left">{{ selectedReport?.nazwa }}</h2>
+                    <p class="text-left">{{ selectedReport?.etap }}</p>
                 </div>
        
                 <!-- Formularz komentarza -->
@@ -229,12 +229,22 @@
 
   </template>
   <script>
+   import axios from 'axios';
   export default {
     data() {
       return {
         showDropDown: false,
         showDropDown2: false,
         showSide: true,
+        tasks:{
+          id:'',
+          etap:'',
+          nazwa:'',
+          creator_id:'',
+          sprint_id:'',
+          scrum:'',
+
+        },
         reports: [
         { scrum: 'Scrum 1', issue: 'Issue 1', description: 'Description 1', comments: [] },
         { scrum: 'Scrum 2', issue: 'Issue 2', description: 'Description 2', comments: [] },
@@ -250,8 +260,27 @@
       comment: ''
       }
     },
+    mounted() {
+this.fetchIssues();
+    },
     methods: {
-
+      fetchIssues() {
+      axios.get('http://localhost:8000/api/auth/issues')
+        .then(response => {
+          this.tasks = response.data;
+        })
+        .catch(error => {
+          console.error("Błąd podczas ładowania zadań:", error);
+        });
+    },
+  async fetchUserData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/user');
+        this.userData = response.data;
+      } catch (error) {
+        console.error('Błąd podczas pobierania danych użytkownika:', error);
+      }
+    },
 toggleSideBar() {
   this.showSide = !this.showSide
 
@@ -264,8 +293,8 @@ addComment() {
         this.commentText = ''
       }
     },
-    selectReport(report) {
-      this.selectedReport = report
+    selectReport(task) {
+      this.selectedReport = task
     },
 toggleDrop() {
   this.showDropDown = !this.showDropDown
