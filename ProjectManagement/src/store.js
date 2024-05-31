@@ -6,6 +6,11 @@ const store = createStore({
     user: null,
     jwt: null,
     selectedProjectId: null,
+      tasks: {
+      toDo: [],
+      inProgress: [],
+      done: []
+    }
   },
   mutations: {
     SET_USER(state, user) {
@@ -18,7 +23,13 @@ const store = createStore({
     },
     SET_SELECTED_PROJECT_ID(state, projectId) {
       state.selectedProjectId = projectId; // Ustawienie ID wybranego projektu
+    },
+    SET_TASKS(state, tasks) {
+      state.tasks.toDo = tasks.filter(task => task.etap === 'Do zrobienia');
+      state.tasks.inProgress = tasks.filter(task => task.etap === 'W trakcie');
+      state.tasks.done = tasks.filter(task => task.etap === 'Gotowe');
     }
+    
   },
   actions: {
     login({ commit }, { user, jwt }) {

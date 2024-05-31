@@ -16,10 +16,13 @@
     "axios": "^1.6.8",
     "chart.js": "^4.4.3",
     "gantt-chart": "^1.1.0",
+    "sortablejs-vue3": "^1.2.11",
     "vue": "^3.4.21",
+    "vue-draggable-next": "^2.2.1",
     "vue-ganttastic": "^0.9.34",
     "vue-multiselect": "^3.0.0",
     "vue-router": "^4.3.2",
+    "vuedraggable": "^2.24.3",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

@@ -166,8 +166,8 @@
           <div>
             <b>{{ arg.timeText }}</b>
             <div>{{ arg.event.title }}</div>
-            <div>Scrum: {{ arg.event.extendedProps.scrum }}</div>
-            <div>Task: {{ arg.event.extendedProps.task }}</div>
+      
+            <div>Typ: {{ arg.event.extendedProps.type }}</div>
           </div>
         </template>
       </FullCalendar>
@@ -183,6 +183,7 @@
   </div>
 </template>
 <script>
+import axios from 'axios';
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 export default {
@@ -194,39 +195,53 @@ export default {
       showDropDown: false,
       showDropDown2: false,
       showSide: true,
+      sprints: [],
       calendarOptions: {
       plugins: [dayGridPlugin],
       initialView: 'dayGridMonth',
       weekends: false,
-      events: [
-        {
-          title: 'SPRINT-1',
-          start: '2024-05-01',
-          end: '2024-05-09',
-          extendedProps: {
-            scrum: 'Scrum-3',
-            task: 'Testy jednostkowe'
-          }
-        },
-        {
-          title: 'SPRINT-2',
-          start: '2024-05-05',
-          end: '2024-05-15',
-          extendedProps: {
-            scrum: 'Scrum-3',
-            task: 'Testy manualne'
-          }
-        }
-      ]
+      events: [],
     }
     }
   },
+  mounted() {
+    this.fetchSprints();
+  },
   methods: {
-
+    fetchSprints() {
+      axios.get('http://localhost:8000/api/auth/sprints')
+        .then(response => {
+          this.sprints = response.data;
+          this.updateCalendarEvents();
+        })
+        .catch(error => {
+          console.error("Błąd podczas pobierania sprintów:", error);
+        });
+    },
+    updateCalendarEvents() {
+      this.calendarOptions.events = this.sprints.map(sprint => ({
+        title: sprint.name,
+        start: sprint.dataRozpoczecia,
+        end: sprint.dataZakonczenia,
+        color: this.getRandomColor(),
+        extendedProps: {
+          type: sprint.type
+        }
+      }));
+    },
 toggleSideBar() {
 this.showSide = !this.showSide
 
 },
+getRandomColor() {
+    // Generowanie losowego koloru w formacie CSS (#RRGGBB)
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  },
 
 toggleDrop() {
 this.showDropDown = !this.showDropDown

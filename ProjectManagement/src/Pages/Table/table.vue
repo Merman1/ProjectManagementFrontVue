@@ -136,7 +136,7 @@
               <div class="flex items-center justify-start space-x-4" @click="toggleDrop">
                 <img class="w-10 h-10 rounded-full border-2 border-gray-50" src="../../assets/profil.png" alt="">
                 <div class="font-semibold dark:text-black text-left">
-                  <div>Jarek</div>
+                  <div>{{userData.username}}</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">User</div>
                 </div>
               </div>
@@ -168,8 +168,10 @@
           <h3 class="font-bold text-left text-xl">Zadania do zrobienia</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki zadaniami do zrobienia -->
-            <div class="bg-blue-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'toDo')" v-for="(task, index) in tasks" :key="index">
+            <div class="bg-blue-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task)" v-for="(task, index) in $store.state.tasks.toDo" :key="index">
+              <div v-if="task && task.etap === 'Do zrobienia'">
               <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
+              </div>
             </div>
           </div>
         </div>
@@ -179,19 +181,26 @@
           <h3 class="font-bold text-left text-xl">Zadania w trakcie realizacji</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki zadaniami w trakcie realizacji -->
-            <div class="bg-green-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'inProgress')" v-for="(task, index) in tasks" :key="index">
+            <div class="bg-green-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task )" v-for="(task, index) in $store.state.tasks.inProgress" :key="index">
+              <div v-if="task && task.etap === 'W trakcie'">
               <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
+            </div>
             </div>
           </div>
         </div>
 
         <!-- Sekcja z gotowymi zadaniami -->
-        <div>
+        <div class="border-b border-gray-300 pb-4">
           <h3 class="font-bold text-left text-xl">Gotowe zadania</h3>
           <div class="flex flex-col space-y-4">
             <!-- Przykładowe kafelki z gotowymi zadaniami -->
-            <div class="bg-yellow-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task, 'done')" v-for="(task, index) in tasks" :key="index">
+            <div class="bg-yellow-200 p-4 rounded-md shadow-md cursor-pointer" @click="showTaskDetails(task )" v-for="(task, index) in $store.state.tasks.done" :key="index">
+  <div v-if="task && task.etap === 'Gotowe'">
+
+
+
               <h3 class="font-semibold text-sm">{{ task.nazwa }}</h3>
+              </div>
             </div>
           </div>
         </div>
@@ -205,37 +214,41 @@
         <hr class="my-4 border-dashed border-gray-300">
         <!-- Tu będą wyświetlane szczegóły zadania po kliknięciu na kafelek -->
         <div v-if="selectedTask">
-          <h3 class="font-semibold text-lg">{{ selectedTask.nazwa }}</h3>
-          <p>{{ selectedTask.etap }}</p>
-          <p>{{ selectedTask.scrum }}</p>
-          <hr class="my-4 border-dashed border-gray-300">
-          <div class="mt-4">
-            <label for="assignedTo" class="block font-semibold">Osoba przypisana:</label>
-            <input type="text" id="assignedTo" :value="selectedTask.assignedTo" class="border border-gray-300 rounded-md p-2 w-full mt-1" disabled>
-          </div>
-          <hr class="my-4 border-dashed border-gray-300">
-          <div class="mt-4">
-            <label class="block font-semibold">Status:</label>
-            <div>
-              <input type="radio" id="toDo" name="status" value="toDo" v-model="selectedTask.etap">
-              <label for="toDo">Do zrobienia</label><br>
-              <input type="radio" id="inProgress" name="status" value="inProgress" v-model="selectedTask.etap">
-              <label for="inProgress">W trakcie</label><br>
-              <input type="radio" id="done" name="status" value="done" v-model="selectedTask.etap">
-              <label for="done">Gotowe</label><br>
-            </div>
-          </div>
-          <hr class="my-4 border-dashed border-gray-300">
-          <div class="mt-8">
-            <h3 class="font-bold text-left text-xl">Komentarze</h3>
-            <div v-for="(comment, index) in selectedTask.comments" :key="index" class="mt-4 border rounded-md p-2 bg-gray-100">
-              <p><strong>{{ comment.author }}</strong>: {{ comment.text }}</p>
-            </div>
-            <textarea v-model="newComment" class="mt-4 border border-gray-300 rounded-md p-2 w-full" placeholder="Dodaj nowy komentarz"></textarea>
-            <button @click="addComment" class="mt-2 px-4 py-2 bg-cyan-700 text-white rounded-md">Dodaj komentarz</button>
-          </div>
-          <button @click="confirmSave" class="mt-4 px-4 py-2 bg-cyan-700 text-white rounded-md">Zapisz zmiany</button>
+    <h3 class="font-semibold text-lg">{{ selectedTask.nazwa }}</h3>
+    <p>{{ selectedTask.etap }}</p>
+    <p>{{ selectedTask.scrum }}</p>
+    <hr class="my-4 border-dashed border-gray-300">
+   
+
+    <hr class="my-4 border-dashed border-gray-300">
+    <div class="mt-4">
+        <label class="block font-semibold">Status:</label>
+        <div>
+            <input type="radio" id="toDo" name="status" value="Do zrobienia" v-model="selectedTask.etap">
+            <label for="toDo">Do zrobienia</label><br>
+            <input type="radio" id="inProgress" name="status" value="W trakcie" v-model="selectedTask.etap">
+            <label for="inProgress">W trakcie</label><br>
+            <input type="radio" id="done" name="status" value="Gotowe" v-model="selectedTask.etap">
+            <label for="done">Gotowe</label><br>
         </div>
+    </div>
+    <hr class="my-4 border-dashed border-gray-300">
+    <button @click="confirmSave" class="mt-4 px-4 py-2 bg-cyan-700 text-white rounded-md">Zapisz zmiany</button>
+    <div class="mt-8 overflow-y-auto">
+        <h3 class="font-bold text-left text-xl">Komentarze</h3>
+        <div v-for="comment in comments" :key="comment.id">
+    <p>{{ comment.opis }}</p>
+    <p>{{ comment.dataDodania }}</p>
+    <p>{{ comment.user.name }}</p>
+</div>
+<button @click="fetchAllCommentsForIssue(selectedTask.id)">Pokaż więcej</button>
+        <textarea v-model="newComment" class="mt-4 border border-gray-300 rounded-md p-2 w-full" placeholder="Dodaj nowy komentarz"></textarea>
+        <button @click="addComment" class="mt-2 px-4 py-2 bg-cyan-700 text-white rounded-md">Dodaj komentarz</button>
+    </div>
+
+    
+</div>
+
         <div v-else>
           <p>Wybierz zadanie, aby zobaczyć szczegóły</p>
         </div>
@@ -248,58 +261,55 @@
  
     </div>
   </template>
-  <script>
-   import axios from 'axios';
-  export default {
-    data() {
-      return {
-        showDropDown: false,
-        showDropDown2: false,
-        showSide: true,
-        tasks:{
-          id:'',
-          etap:'',
-          nazwa:'',
-          creator_id:'',
-          sprint_id:'',
-          scrum:'',
+<script>
+import axios from 'axios';
 
-        },
-        newComment: '',
-        tasksToDo: [
-                { title: 'Zadanie 1', sprint: 'Sprint 1', description: 'Opis zadania 1', status: 'toDo', assignedTo: 'Jan Kowalski' },
-                { title: 'Zadanie 2', sprint: 'Sprint 2', description: 'Opis zadania 2', status: 'toDo', assignedTo: 'Anna Nowak' },
-                { title: 'Zadanie 3', sprint: 'Sprint 3', description: 'Opis zadania 3', status: 'toDo', assignedTo: 'Tomasz Nowak' }
-            ],
-            tasksInProgress: [
-                { title: 'Zadanie 4', sprint: 'Sprint 1', description: 'Opis zadania 4', status: 'inProgress', assignedTo: 'Marcin Kowalczyk' },
-                { title: 'Zadanie 5', sprint: 'Sprint 2', description: 'Opis zadania 5', status: 'inProgress', assignedTo: 'Karolina Malinowska' }
-            ],
-            tasksDone: [
-                { title: 'Zadanie 6', sprint: 'Sprint 3', description: 'Opis zadania 6', status: 'done', assignedTo: 'Michał Nowak' },
-                { title: 'Zadanie 7', sprint: 'Sprint 4', description: 'Opis zadania 7', status: 'done', assignedTo: 'Natalia Wiśniewska' },
-                { title: 'Zadanie 8', sprint: 'Sprint 4', description: 'Opis zadania 8', status: 'done', assignedTo: 'Piotr Kowalski' },
-                { title: 'Zadanie 9', sprint: 'Sprint 4', description: 'Opis zadania 9', status: 'done', assignedTo: 'Katarzyna Kowalczyk' },
-                { title: 'Zadanie 10', sprint: 'Sprint 5', description: 'Opis zadania 10', status: 'done', assignedTo: 'Wojciech Nowak' }
-            ],
-            selectedTask: null
-      }
+export default {
+  data() {
+    return {
+      showDropDown: false,
+      showDropDown2: false,
+      showSide: true,
+      comments:[],
+      userData: [],
+      newComment: '',
+      selectedTask: null,
+      issues:[],
+      users:[]
+    };
+  },
+  mounted() {
+    this.fetchIssues();
+    this.fetchUserData();
+  },
+  methods: {
+    fetchAllCommentsForIssue(issueId) {
+        axios.get(`http://localhost:8000/api/auth/comments/issue/${issueId}`)
+            .then(response => {
+                this.comments = response.data;
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania wszystkich komentarzy:', error);
+            });
     },
-    mounted(){
-this.fetchIssues();
-    },
-    methods: {
-      fetchIssues() {
-      axios.get('http://localhost:8000/api/auth/issues')
+
+
+
+    fetchIssues() {
+      const userId = this.$store.state.user.id;
+      axios.get(`http://localhost:8000/api/auth/issues?user_id=${userId}`)
         .then(response => {
-          
-          this.tasks = response.data;
+          const filteredTasks = response.data.filter(task => {
+            return task.users.some(user => user.id === userId);
+          });
+          this.$store.commit('SET_TASKS', filteredTasks);
         })
         .catch(error => {
           console.error("Błąd podczas ładowania zadań:", error);
         });
     },
-  async fetchUserData() {
+    
+    async fetchUserData() {
       try {
         const response = await axios.get('http://localhost:8000/api/auth/user');
         this.userData = response.data;
@@ -307,45 +317,64 @@ this.fetchIssues();
         console.error('Błąd podczas pobierania danych użytkownika:', error);
       }
     },
-        showTaskDetails(task, section) {
-            this.selectedTask = task;
-        },
-        confirmSave() {
-            if (confirm('Czy na pewno chcesz zapisać zmiany?')) {
-                this.saveTask();
-            }
-        },
-        addComment() {
-      // Dodaj logikę dodawania komentarza do wybranego zadania
-      if (this.selectedTask) {
-        if (!this.selectedTask.comments) {
-          this.selectedTask.comments = [];
-        }
-        this.selectedTask.comments.push({ author: 'Autor', text: this.newComment });
-        this.newComment = ''; // Wyczyść pole tekstowe po dodaniu komentarza
-      }
+    showTaskDetails(task, section) {
+      this.selectedTask = task;
     },
-        saveTask() {
-            // Tutaj można dodać logikę zapisu zmian w zadaniu
-            console.log('Zapisano zmiany w zadaniu:', this.selectedTask);
-        },
-toggleSideBar() {
-  this.showSide = !this.showSide
+    confirmSave() {
+    // Sprawdź, czy wybrano zadanie
+    if (this.selectedTask) {
+      // Wywołaj metodę aktualizacji sprintu, przekazując wybrane zadanie
+      this.updateIssue(this.selectedTask);
+    }
+  },
+  addComment() {
+    if (this.selectedTask && this.newComment.trim()) {
+        const commentData = {
+            opis: this.newComment,
+            user: { id: this.userData.id },
+            dataDodania: new Date().toISOString()
+        };
 
+        axios.post(`http://localhost:8000/api/auth/comments/assign/${this.selectedTask.id}`, commentData)
+            .then(response => {
+                console.log('Komentarz został przypisany do zadania:', response.data);
+                this.fetchCommentsForIssue(this.selectedTask.id);
+            })
+            .catch(error => {
+                console.error('Błąd podczas przypisywania komentarza do zadania:', error);
+            });
+
+        this.newComment = ''; // Wyczyść pole tekstowe
+    }
 },
 
-toggleDrop() {
-  this.showDropDown = !this.showDropDown
-
+updateIssue(issues) {
+    axios.put(`http://localhost:8000/api/auth/issues/${issues.id}`, issues)
+      .then(response => {
+        console.log('Sprint zaktualizowany:', response.data);
+          this.editMode2 = null; // Wyłącz tryb edycji po zapisaniu zmian
+          this.fetchIssues(); 
+        // lub wyłączenie trybu edycji
+      })
+      .catch(error => {
+        console.error("Błąd podczas aktualizacji sprintu:", error);
+      });
 },
-toggleDrop2() {
-  this.showDropDown2 = !this.showDropDown2
-
-}
-}
-  
+    saveTask() {
+      console.log('Zapisano zmiany w zadaniu:', this.selectedTask);
+    },
+    toggleSideBar() {
+      this.showSide = !this.showSide;
+    },
+    toggleDrop() {
+      this.showDropDown = !this.showDropDown;
+    },
+    toggleDrop2() {
+      this.showDropDown2 = !this.showDropDown2;
+    }
   }
-  </script>
+};
+</script>
   
   <style>
   

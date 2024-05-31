@@ -282,6 +282,7 @@
 
 
 
+
     <div class="flex justify-center">
       <input v-model="newTaskName" @keyup.enter="addIssue" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
 <!-- Dodajemy pole wyboru etapu zadania -->
@@ -308,7 +309,7 @@
         Dodaj zadanie
       </button>
     </div>
- 
+ </div>
 </div>
 
         <div class="my-20"></div>
@@ -324,28 +325,41 @@
   Utwórz sprint
 </button>
 </div>
-<div v-if="showTasks2">
-  <div class="my-4"></div>
-  <!-- Wyświetlanie zadań -->
-  <div v-for="(task2, index) in tasks2" :key="index" class="border border-gray-300 rounded-md p-[10px] mb-4">
-    <h4 class="font-medium text-left text-lg text-black">{{ task2.name }}</h4>
-    <p class="text-gray-600">{{ task2.description }}</p>
- 
+<div v-if="showTasksBacklog === sprint.id" class="overflow-y-auto max-h-[300px]">
+  <div v-for="(task, taskIndex) in tasks.filter(t => !t.sprint)" :key="taskIndex" class="border border-gray-300 rounded-md p-[10px] mb-4">
+    <h4 class="font-medium text-left text-lg text-black">Nazwa: {{ task.nazwa }}</h4>
+    <p class="text-gray-600">Etap: {{ task.etap }}</p>
+    <p class="text-gray-600">Lider: {{ task.lider }}</p>
   </div>
+</div>
 
-  <!-- Dodawanie nowego zadania -->
-  <div class="flex justify-center">
-    <input v-model="newTaskName2" @keyup.enter="addIssue" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
-  </div>
+<input v-model="newTaskName" @keyup.enter="addIssue" type="text" placeholder="Dodaj nowe zadanie..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500">
+<!-- Dodajemy pole wyboru etapu zadania -->
+<div class="flex items-center mt-2">
+  <label for="taskStage">Etap zadania:</label>
+  <select v-model="newTaskStage" id="taskStage" class="ml-2 border border-gray-300 rounded-md p-1">
+    <option value="Do zrobienia">Do zrobienia</option>
+    <option value="W trakcie">W trakcie</option>
+    <option value="Gotowe">Gotowe</option>
+  </select>
+</div>
+<!-- Przycisk wyboru użytkownika -->
+<div>
+  <label for="assignedUser">Przypisz użytkownika:</label>
+  <select v-model="assignedUser" id="assignedUser" class="border border-gray-300 rounded-md p-1">
+    <option value="">Wybierz użytkownika</option>
+    <option v-for="user in users" :key="user.id" :value="user.id">{{ user.username }}</option>
+  </select>
+</div>
 
   <!-- Przycisk dodawania zadania -->
   <div class="my-4 flex items-center">
-    <button @click="addIssue" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
-      <img class="w-5 h-5 mr-2 border-gray-50" src="../../assets/plus.png" alt="">
-      Dodaj zadanie
-    </button>
-  </div>
-</div>
+      <button @click="addIssueBacklog()" class="bg-white text-black font-bold py-2 px-4 rounded flex items-center space-x-2">
+        <img class="w-5 h-5 mr-2 border-gray-50" src="../../assets/plus.png" alt="">
+        Dodaj zadanie
+      </button>
+    </div>
+
 
         <div class="my-4"></div>
       </div>
@@ -353,15 +367,17 @@
       <router-view></router-view>
     </div>
   </div>
+</div>
 
-      </div>
       
  
-    </div>
+    
   </template>
   <script>
+
   import { mapGetters } from 'vuex';
   import axios from 'axios';
+
   export default {
     data() {
   return {
@@ -370,6 +386,7 @@
     showDropDown3: false,
     showSide: true,
     editMode: false,
+    showTasksBacklog:null,
     editMode2:false,
     showTasks: null,
     sprint: {
@@ -401,6 +418,7 @@
     filteredSprints: [],
   }
 },
+
 created() {
     this.fetchSprints();
   },
@@ -430,7 +448,8 @@ computed:{
 },
 
 methods: {
-  
+ 
+
   fetchIssues() {
       axios.get('http://localhost:8000/api/auth/issues')
         .then(response => {
@@ -507,6 +526,45 @@ if (sprint) {
     }
 },
 
+addIssueBacklog() {
+
+      if (this.newTaskName.trim() !== '') {
+        const currentUserId = this.$store.getters.loggedInUser?.id;
+        if (!currentUserId) {
+          console.error("Błąd: Użytkownik nie jest zalogowany lub nie ma ID.");
+          return;
+        }
+
+        const assignedUserId = this.assignedUser;
+        console.log("Id przypisanego użytkownika:", assignedUserId);
+        console.log("Nazwa nowego zadania:", this.newTaskName);
+        console.log("Etap nowego zadania:", this.newTaskStage);
+        console.log("Przypisany użytkownik:", assignedUserId);
+
+        const newIssue = {
+          nazwa: this.newTaskName,
+          etap: this.newTaskStage || 'Do zrobienia',
+          users: [{ id: assignedUserId }],
+          comments: [],
+          creator: { id: currentUserId },
+          sprint: null
+        };
+
+        axios.post(`http://localhost:8000/api/auth/issues/CreateBacklog`, newIssue)
+          .then(response => {
+            console.log("Nowe zadanie zostało dodane:", response.data);
+            this.tasks.push(response.data);
+          })
+          .catch(error => {
+            console.error("Błąd podczas dodawania nowego zadania:", error);
+          });
+
+        this.newTaskName = '';
+        this.newTaskStage = 'Do zrobienia';
+        this.assignedUser = null;
+      }
+    
+},
 
 
 
@@ -588,7 +646,9 @@ toggleSideBar() {
 toggleTasks(sprintId) {
         this.showTasks = this.showTasks === sprintId ? null : sprintId;
     },
-
+    toggleTasksBacklog() {
+        this.showTasks = this.showTasks;
+    },
     toggleDrop3(sprintId) {
       this.showDropDown3 = this.showDropDown3 === sprintId ? null : sprintId;
     },
@@ -668,5 +728,5 @@ toggleDrop2() {
   </script>
   
   <style>
-  
+
   </style>
