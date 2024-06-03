@@ -18,13 +18,13 @@ import store from '@/store'
 const routes = [ 
 {
 name:'HomePageUser',
-path:'/',
+path:'/homeUser',
 component:HomePageUser,
 meta: { requiresAuth: true }
 },
 {
     name:'HomePageMaster',
-    path:'/home',
+    path:'/homeMaster',
     component:HomePageMaster,
     meta: { requiresAuth: true }
     },

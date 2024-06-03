@@ -12,8 +12,7 @@
             <hr class="my-4 border-dashed border-gray-300">
             <router-link to="/projects" class="inline-flex relative items-center py-[10px] px-[10px] w-full text-sm font-medium rounded-md border-gray-200 hover:bg-gray-200 hover:text-gray-800 transition duration-400 ease-in-out">
               <img class="w-10 h-10 border-gray-50" src="../../assets/project.png" alt="">
-              <h3 class="font-bold text-xl">Project Zero</h3>
-              <h2>Software project</h2>
+              <h3 class="font-bold text-xl" v-if="selectedProject">{{ selectedProject }}</h3>
             </router-link>
             <hr class="my-4 border-dashed border-gray-300">
             <router-link to="/projects" class="inline-flex relative items-center py-[10px] px-[10px] w-full text-sm font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray-800 transition duration-400 ease-in-out">
@@ -39,21 +38,26 @@
           <img class="w-20 h-10 border-gray-50" src="../../assets/menu.png" alt="">
         </div>
         <div class="px-[20px]">
-          <router-link to="/home">
+          <router-link to="/homeMaster">
             <h3 class="font-bold text-xl">VaultProject</h3>
           </router-link>
         </div>
         <img class="w-10 h-10 border-gray-50" src="../../assets/vault.png" alt="">
         <div class="w-[calc(100%-30px)] flex">
           <div class="w-[calc(100%-200px)] flex justify-center">
-            <form class="flex items-center w-[500px]">
-              <div class="relative w-full">
-                <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                  <img class="w-10 h-10 border-gray-50 mr-2" src="../../assets/lupa.png" alt="">
-                </div>
-                <input type="text" id="voice-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-16 p-2.5" placeholder="Search..." required>
-              </div>
-            </form>
+            <form @submit.prevent="search">
+      <label for="search" class="sr-only">Search</label>
+      <div class="relative">
+        <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+          <img class="w-10 h-10 border-gray-50 mr-2" src="../../assets/lupa.png" alt="">
+        </div>
+        <input v-model="searchQuery" type="text" id="search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-16 p-2.5 dark:bg-cyan-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." required>
+        <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          </svg>
+        </button>
+      </div>
+    </form>
           </div>
           <div class="w-[50px]">
             <div class="flex items-center justify-start space-x-2" @click="toggleDrop2">
@@ -132,7 +136,7 @@
 
 <script>
 import axios from 'axios';
-
+import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
@@ -145,11 +149,40 @@ export default {
         type: '',
         leader: { username: '' },
         users: []
-      }
+      },
+      selectedProject:''
     };
   },
   props: ['id'],
+
   computed: {
+    ...mapGetters(['loggedInUser']),
+    homeLink() {
+    if (this.userData && this.userData.roles) {
+      if (this.userData.roles.some(role => role.name === 'ROLE_ADMIN')) {
+        return '/homeMaster';
+      } else if (this.userData.roles.some(role => role.name === 'ROLE_USER')) {
+        return '/homeUser';
+      }
+    }
+    return '/home';
+  }, 
+
+    showBacklogLink() {
+      return this.userData && this.userData.roles && this.userData.roles.some(role => role.name === 'ROLE_ADMIN' || role.name === 'ROLE_MODERATOR');
+    },
+    
+    showSettingsLink() {
+    return this.userData && this.userData.roles && this.userData.roles.some(role => role.name === 'ROLE_ADMIN' || role.name === 'ROLE_MODERATOR');
+  },
+
+  showUsersLink() {
+    return this.userData && this.userData.roles && this.userData.roles.some(role => role.name === 'ROLE_ADMIN' || role.name === 'ROLE_MODERATOR');
+  },
+
+    showListLink() {
+      return this.userData && this.userData.roles && this.userData.roles.some(role => role.name === 'ROLE_ADMIN' || role.name === 'ROLE_MODERATOR');
+    },
     projectId() {
       return this.id;
     },
@@ -157,7 +190,54 @@ export default {
       return this.editedProject.users.map(user => user.username).join(', ');
     }
   },
+
   methods: {
+    async fetchProjects() {
+  try {
+    const response = await axios.get('http://localhost:8000/api/auth/projects');
+    this.projects = response.data;
+
+    const selectedProjectId = this.$store.state.selectedProjectId;
+
+    const selectedProject = this.projects.find(project => project.id === selectedProjectId);
+    if (selectedProject) {
+      console.log('Nazwa aktualnie wybranego projektu:', selectedProject.name);
+      this.selectedProject = selectedProject.name; 
+    } else {
+      console.log('Nie znaleziono projektu o podanym ID');
+    }
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+  }
+},
+    search() {
+        const routeName = this.searchQuery.toLowerCase(); 
+  if (routeName === 'strona główna') {
+    this.$router.push({ name: 'HomePageUser' });
+  } else if (routeName === 'profil') {
+    this.$router.push({ name: 'profile' });
+  }else if (routeName === 'backlog') {
+    this.$router.push({ name: 'backlog' });
+  }else if (routeName === 'edycja kontaktu') {
+    this.$router.push({ name: 'editContact' });
+  }else if (routeName === 'edycja loginu') {
+    this.$router.push({ name: 'editLogin' });
+  }else if (routeName === 'edycja użytkownika') {
+    this.$router.push({ name: 'editUser' });
+  }else if (routeName === 'kalendarz') {
+    this.$router.push({ name: 'timeline' });
+  }else if (routeName === 'lista') {
+    this.$router.push({ name: 'list' });
+  }else if (routeName === 'zgłoszenia') {
+    this.$router.push({ name: 'reports' });
+  }else if (routeName === 'tabela') {
+    this.$router.push({ name: 'table' });
+  }else if (routeName === 'użytkownik') {
+    this.$router.push({ name: 'user' });
+  } else {
+    this.$router.push({ name: 'searchResults', params: { query: this.searchQuery }});
+  }
+    },
     async loadProject() {
       const projectId = this.$route.params.id;
       try {
@@ -193,10 +273,7 @@ export default {
   },
   mounted() {
     this.loadProject();
+    this.fetchProjects();
   }
 };
 </script>
-
-<style>
-/* Add your custom styles here */
-</style>

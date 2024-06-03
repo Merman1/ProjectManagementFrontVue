@@ -7,14 +7,18 @@
       <form @submit.prevent="submitLogin">
         <div class="mb-4">
           <label for="username" class="block text-gray-700">Nazwa użytkownika:</label>
-          <input v-model="username" type="text" id="username" name="username" class="border border-gray-300 rounded-md p-2 w-full">
+          <input v-model="username" type="text" id="username" name="username"
+            class="border border-gray-300 rounded-md p-2 w-full">
         </div>
         <div class="mb-6">
           <label for="password" class="block text-gray-700">Hasło:</label>
-          <input v-model="password" type="password" id="password" name="password" class="border border-gray-300 rounded-md p-2 w-full">
+          <input v-model="password" type="password" id="password" name="password"
+            class="border border-gray-300 rounded-md p-2 w-full">
         </div>
         <div class="flex justify-between items-center">
-          <button type="submit" class="bg-amber-300 mr-2 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 transition duration-300 ease-in-out">Zaloguj się</button>
+          <button type="submit"
+            class="bg-amber-300 mr-2 text-white font-bold py-2 px-4 rounded hover:bg-amber-500 transition duration-300 ease-in-out">Zaloguj
+            się</button>
           <a href="#" class="text-gray-600 hover:underline">Zapomniałeś hasła?</a>
         </div>
         <div v-if="errorMessage" class="text-red-500 mt-4">
@@ -25,12 +29,9 @@
   </div>
 </template>
 
-
-
 <script>
 import { mapActions } from 'vuex';
 import axios from 'axios';
-
 export default {
   data() {
     return {
@@ -39,6 +40,7 @@ export default {
       errorMessage: '',
     };
   },
+
   methods: {
     ...mapActions(['login']),
     async submitLogin() {
@@ -58,19 +60,21 @@ export default {
             },
             jwt: response.data.accessToken
           });
-          this.$router.push('/projects');
+          const roles = response.data.roles;
+          if (roles.includes('ROLE_USER')) {
+            this.$router.push('/projects');
+          } else if (roles.includes('ROLE_MODERATOR') || roles.includes('ROLE_ADMIN')) {
+            this.$router.push('/projects');
+          } else {
+            console.error('Nieznane role użytkownika');
+          }
         } else {
-          console.error('Login failed');
+          console.error('Logowanie nieudane');
         }
       } catch (error) {
-        console.error('Login error:', error);
+        console.error('Błąd logowania:', error);
       }
     }
   }
 };
 </script>
-
-
-<style scoped>
-/* Stylowanie dla tego komponentu */
-</style>
