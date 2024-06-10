@@ -282,15 +282,7 @@
                     <input type="datetime-local" id="end-time" v-model="endTime"
                       class="border border-gray-300 rounded-md p-2">
                   </div>
-                  <div class="flex flex-col mb-4">
-                    <label for="sprintId" class="font-semibold mb-1">Id sprintu:</label>
-                    <input type="text" id="sprintId" v-model="selectedSprintId"
-                      class="border border-gray-300 rounded-md p-2">
-                  </div>
-                  <div class="flex flex-col mb-4">
-                    <label for="userId" class="font-semibold mb-1">Id Użytkownika:</label>
-                    <input type="text" id="userId" v-model="userData.id" class="border border-gray-300 rounded-md p-2">
-                  </div>
+          
                   <button type="submit"
                     class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Dodaj
                     czas</button>

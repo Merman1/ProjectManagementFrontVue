@@ -202,7 +202,7 @@
                   project.name }}</h3>
                 <p class="bg-white shadow-md">Klucz: {{ project.keyProject }}</p>
                 <p class="bg-white shadow-md">Typ: {{ project.type }}</p>
-                <p class="bg-white shadow-md">Lider: {{ project.leader.username }}</p>
+                <p class="bg-white shadow-md">Lider: {{ project.leader.adress }} {{ project.leader.lastName }}</p>
               </router-link>
               <div class="mt-auto flex justify-end absolute top-0 right-0">
                 <button v-if="isAdmin" @click="toggleOptions(project.id)" class="px-4 py-2 bg-transparent text-gray-700 rounded-md">

@@ -69,10 +69,11 @@ export default {
             console.error('Nieznane role użytkownika');
           }
         } else {
-          console.error('Logowanie nieudane');
+          this.errorMessage = 'Nieprawidłowa nazwa użytkownika lub hasło';
         }
       } catch (error) {
         console.error('Błąd logowania:', error);
+        this.errorMessage = 'Wystąpił błąd podczas logowania. Spróbuj ponownie.';
       }
     }
   }

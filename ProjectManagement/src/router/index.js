@@ -109,22 +109,23 @@ meta: { requiresAuth: true }
 ];
 
 const router = Router();
-export default router;
 function Router(){
-const router = new createRouter({
-history: createWebHistory(),
-routes,
-});
-return router;
-};
-router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (!store.getters.isAuthenticated) {
-        next('/login');
-      } else {
-        next();
-      }
-    } else {
-      next();
-    }
-  });
+    const router = new createRouter({
+    history: createWebHistory(),
+    routes,
+    });
+    return router;
+    };
+    router.beforeEach((to, from, next) => {
+        if (to.matched.some(record => record.meta.requiresAuth)) {
+          if (!store.getters.isAuthenticated) {
+            next('/login');
+          } else {
+            next();
+          }
+        } else {
+          next();
+        }
+      });
+    
+export default router;

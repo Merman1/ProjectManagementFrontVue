@@ -1,13 +1,25 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
 
+let userRoles = [];
+try {
+  const userRolesFromStorage = localStorage.getItem('userRoles');
+  if (userRolesFromStorage) {
+    userRoles = JSON.parse(userRolesFromStorage);
+  }
+} catch (error) {
+  console.error('Error parsing user roles from localStorage:', error);
+}
+
 const store = createStore({
   state: {
     user: null,
-    jwt: null,
-    userRoles: [],
+    jwt: localStorage.getItem('jwt') || null,
+    userRoles: userRoles,
+
+
     selectedProjectId: null,
-      tasks: {
+    tasks: {
       toDo: [],
       inProgress: [],
       done: []
@@ -18,18 +30,21 @@ const store = createStore({
       type: ''
     }
   },
+
   mutations: {
     SET_USER(state, user) {
       state.user = user;
     },
     SET_JWT(state, payload) {
-      console.log('Przekazane role:', payload.roles);
       state.jwt = payload.jwt;
       state.userRoles = payload.roles;
       axios.defaults.headers.common['Authorization'] = `Bearer ${payload.jwt}`;
+      // Save JWT and roles to localStorage
+      localStorage.setItem('jwt', payload.jwt);
+      localStorage.setItem('userRoles', JSON.stringify(payload.roles));
     },
     SET_SELECTED_PROJECT_ID(state, projectId) {
-      state.selectedProjectId = projectId; // Ustawienie ID wybranego projektu
+      state.selectedProjectId = projectId;
     },
     SET_TASKS(state, tasks) {
       state.tasks.toDo = tasks.filter(task => task.etap === 'Do zrobienia');
@@ -38,24 +53,58 @@ const store = createStore({
     },
     setSelectedProject(state, project) {
       state.selectedProject = project;
+    },
+    CLEAR_AUTH(state) {
+      state.jwt = null;
+      state.user = null;
+      state.userRoles = [];
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('userRoles');
     }
-    
   },
+
   actions: {
     login({ commit }, payload) {
       commit('SET_USER', payload.user);
       commit('SET_JWT', { jwt: payload.jwt, roles: payload.roles });
     },
+    logout({ commit }) {
+      commit('CLEAR_AUTH');
+    },
     selectProject({ commit }, projectId) {
-      commit('SET_SELECTED_PROJECT_ID', projectId); // Akcja do ustawienia ID wybranego projektu
+      commit('SET_SELECTED_PROJECT_ID', projectId);
     },
     updateSelectedProject({ commit }, project) {
       commit('setSelectedProject', project);
+    },
+    checkAuth({ commit }) {
+      const jwt = localStorage.getItem('jwt');
+      let userRoles = [];
+      try {
+        const userRolesFromStorage = localStorage.getItem('userRoles');
+        if (userRolesFromStorage) {
+          userRoles = JSON.parse(userRolesFromStorage);
+        }
+      } catch (error) {
+        console.error('Error parsing user roles from localStorage:', error);
+      }
+  
+      if (jwt && userRoles) {
+        try {
+          commit('SET_JWT', { jwt, roles: userRoles });
+        } catch (error) {
+          console.error('Error setting JWT and roles:', error);
+          commit('CLEAR_AUTH');
+        }
+      } else {
+        commit('CLEAR_AUTH');
+      }
     }
+    
   },
   getters: {
     isAuthenticated: state => !!state.jwt,
-    loggedInUserRoles: state => state.userRoles, 
+    loggedInUserRoles: state => state.userRoles,
     loggedInUser: state => state.user,
     selectedProjectId: state => state.selectedProjectId,
   }

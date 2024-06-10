@@ -6,7 +6,7 @@
           <h3 class="font-bold text-xl">DASHBOARD</h3>
         </div>
       </div>
-      <div class="h-[calc(100vh-50px)] bg-cyan-700 py-[20px] text-white">
+      <div class="min-h-screen bg-cyan-700 py-5 text-white">
         <div class="flex flex-col justify-between h-full px-[20px] space-y-[10px]">
           <div class=" flex flex-col justify-between space-y-[10px]">
             <hr class="my-4 border-dashed border-gray-300">
@@ -195,7 +195,7 @@
                   </div>
                   <div v-if="editMode2 === sprint.id"
                     class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md">
-                    <h2 class="text-2xl font-semibold mb-4">Edytuj Sprint</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Rozpocznij Sprint</h2>
                     <form @submit.prevent="updateSprint(sprint)">
                       <div class="mb-4">
                         <label for="name" class="block text-gray-700 font-bold mb-2">Nazwa Sprintu:</label>

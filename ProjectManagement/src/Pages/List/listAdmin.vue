@@ -191,7 +191,7 @@
                   <th @click="sortByColumn('id')" class="px-4 py-2">Id</th>
                   <th @click="sortByColumn('Scrum')" class="px-4 py-2">Sprint</th>
                   <th @click="sortByColumn('Scrum')" class="px-4 py-2">Scrum</th>
-                  <th @click="sortByColumn('nazwa')" class="px-4 py-2">Nazwa</th>
+                  <th @click="sortByColumn('nazwa')" class="px-4 py-2">Typ</th>
                   <th @click="sortByColumn('etap')" class="px-4 py-2">Etap</th>
                   <th @click="sortByColumn('Lider')" class="px-4 py-2">Lider</th>
                   <th @click="sortByColumn('OsobaPrzypisana')" class="px-4 py-2">Osoba przypisana</th>
